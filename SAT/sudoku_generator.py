@@ -134,7 +134,7 @@ This function actually tries making 100 puzzles (by default) and returns
 all of them. The "best" function that follows this one selects the best
 one of those.
 """
-def run(n = 28, iter=100):
+def run(n, iter=100):
     all_results = {}
     print "Constructing a sudoku puzzle."
     print "* creating the solution..."
@@ -147,12 +147,25 @@ def run(n = 28, iter=100):
         all_results.setdefault(number_of_cells, []).append(result)
         if number_of_cells <= n: break
 
+    print type(all_results)
     return all_results
 
-def best(set_of_puzzles):
+def return_good_puzzle(set_of_puzzles, n):
     # Could run some evaluation function here. For now just pick
     # the one with the fewest "givens".
-    return set_of_puzzles[min(set_of_puzzles.keys())][0]
+
+    for i in range(len(set_of_puzzles)):
+        print i
+        # print len(set_of_puzzles[i].keys())
+        # if len(set_of_puzzles[i].keys()) = n
+        #     return set_of_puzzles[i]
+        # else:
+        #     results = run(n)
+        #     puzzle = return_good_puzzle(results, n)
+
+
+
+    # return set_of_puzzles[min(set_of_puzzles.keys())][0]
 
 def display(puzzle):
     for row in puzzle:
@@ -160,6 +173,7 @@ def display(puzzle):
 
 
 """ Controls starts here """
-results = run(n=17)       # find puzzles with as few givens as possible.
-puzzle  = best(results)  # use the best one of those puzzles.
+n=17
+results = run(n)       # find puzzles with as few givens as possible.
+puzzle  = return_good_puzzle(results, n)  # use the best one of those puzzles.
 display(puzzle)          # display that puzzle.
