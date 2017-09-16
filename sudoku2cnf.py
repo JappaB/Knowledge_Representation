@@ -201,9 +201,9 @@ def main(argv=None):
             if option in ("-d", "--debug"):
                 DEBUG = True
             if option in ("-p", "--poblem"):
-                print "c Sudoku {0}x{0}".format(BOARD)
-                print "p cnf {0} {1}".format(BOARD**3*2, \
-                    (1+BOARD+BOARD**2)*BOARD**2 + 3*BOARD**2)
+                # print "c Sudoku {0}x{0}".format(BOARD)
+                # print "p cnf {0} {1}".format(BOARD**3*2, \
+                #     (1+BOARD+BOARD**2)*BOARD**2 + 3*BOARD**2)
 
                 for x in range(BOARD):
                     for y in range(BOARD):
@@ -227,14 +227,14 @@ def main(argv=None):
                                 print_formula([(var, x, y, val, neg)])
                             if var == 'x' and neg == 1:
                                 sudoku[x][y] = val + 1
-                for x in range(BOARD):
-                    for y in range(BOARD):
-                        print sudoku[x][y],
-                    print
+                # for x in range(BOARD):
+                #     for y in range(BOARD):
+                #         print sudoku[x][y],
+                #     print
 
     except Usage, err:
-        print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
-        print >> sys.stderr, "\t for help use --help"
+        # print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
+        # print >> sys.stderr, "\t for help use --help"
         return 2
 
 if __name__ == "__main__":

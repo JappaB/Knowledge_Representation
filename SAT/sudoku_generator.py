@@ -156,7 +156,7 @@ def return_good_puzzle(set_of_puzzles, n):
 
     for i in range(len(set_of_puzzles)):
         print i
-        # print len(set_of_puzzles[i].keys())
+        print len(set_of_puzzles[i].keys())
         # if len(set_of_puzzles[i].keys()) = n
         #     return set_of_puzzles[i]
         # else:
