@@ -1,3 +1,5 @@
+import sudoku2cnf
+
 def grid_values(grid):
     # "Convert grid into a dict of {square: char} with '0' or '.' for empties."
     chars = [c for c in grid if c in digits or c in '0.']
@@ -8,15 +10,18 @@ def cross(A, B):
     # "Cross product of elements in A and elements in B."
     return [a+b for a in A for b in B]
 
+# Displays data in dictionary in a pretty grid
 def display(values):
     "Display these values as a 2-D grid."
     width = 1+max(len(values[s]) for s in squares)
-    line = '+'.join(['-'*(width*3)]*3)
+    grid = ""
     for r in rows:
-        print ''.join(values[r+c].center(width)+('|' if c in '36' else '')
-                      for c in cols)
-        if r in 'CF': print line
-    print
+        line = ''.join(values[r+c].center(width) for c in cols)
+        grid += line.strip().replace('0', '-')
+        if r != rows[-1]:
+            grid += '\n'
+
+    return grid
 
 digits   = '123456789'
 rows     = 'ABCDEFGHI'
@@ -32,12 +37,7 @@ peers = dict((s, set(sum(units[s],[]))-set([s]))
 
 file = open('raw_17_clue_sudokus.txt', 'r')
 
-counter = 0
-all_grids = file.readlines()
-total = len(all_grids)
+sudoku = file.readline()
 
-for i, grid in enumerate(all_grids):
-    if solved(parse_grid(grid)):
-        counter = counter + 1
-
-print("Solved " + str(counter) + " of " + str(total))
+output = open('test_sudoku.txt', 'w')
+output.write(display(grid_values(sudoku)))
