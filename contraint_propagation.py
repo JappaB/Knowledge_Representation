@@ -1,3 +1,7 @@
+"""
+constraint_propagation.py
+"""
+
 def assign(values, s, d):
     #"""Eliminate all the other values (except d) from values[s] and propagate.
     #Return values, except return False if a contradiction is detected."""
@@ -47,3 +51,22 @@ def solved(values):
         return set(values[s] for s in unit) == set(digits)
 
     return values is not False and all(unitsolved(unit) for unit in unitlist)
+
+def solve(grid): return search(parse_grid(grid))
+
+def search(values):
+    "Using depth-first search and propagation, try all possible values."
+    if values is False:
+        return False ## Failed earlier
+    if all(len(values[s]) == 1 for s in squares):
+        return values ## Solved!
+    ## Chose the unfilled square s with the fewest possibilities
+    n,s = min((len(values[s]), s) for s in squares if len(values[s]) > 1)
+    return some(search(assign(values.copy(), s, d))
+		for d in values[s])
+
+def some(seq):
+    "Return some element of seq that is true."
+    for e in seq:
+        if e: return e
+    return False

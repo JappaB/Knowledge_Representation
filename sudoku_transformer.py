@@ -36,8 +36,9 @@ peers = dict((s, set(sum(units[s],[]))-set([s]))
              for s in squares)
 
 file = open('raw_17_clue_sudokus.txt', 'r')
+sudoku_lines = file.readlines()
 
-sudoku = file.readline()
-
-output = open('test_sudoku.txt', 'w')
-output.write(display(grid_values(sudoku)))
+for (i, line) in enumerate(sudoku_lines):
+    output = open('sudoku_grids/' + str(i) + '_grid.txt', 'w')
+    grid = display(grid_values(line))
+    output.write(grid)
