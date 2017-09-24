@@ -214,7 +214,7 @@ def solve(grid):
 
     start = time.time()
 
-    sol = pycosat.solve(clauses, verbose = 5)
+    sol = pycosat.solve(clauses, verbose = 1)
 
     end = time.time()
 
