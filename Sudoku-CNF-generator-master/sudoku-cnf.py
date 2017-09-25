@@ -7,17 +7,37 @@ https://github.com/taufanardi/sudoku-sat-solver/blob/master/Sudoku.py
 
 
 import pycosat
-
-import sys, getopt 
-
+import sys, getopt
 import time
-
 import numpy as np
+import subprocess
+import json
+import copy
+
+object_template = {
+    'givens' : '',
+    'output' : {
+        'reduction' : 0, # initial reduction limit
+        'statistics' : {
+            'seconds' : [],
+            'level' : [],
+            'variables' : [],
+            'used' : [],
+            'original' : [],
+            'conflicts' : [],
+            'learned' : [],
+            'limit' : [],
+            'agility' : [],
+            'MB' : []
+        }
+    }
+}
+
+measure_labels = ['seconds', 'level', 'variables', 'used', 'original', 'conflicts', 'learned', 'limit', 'agility', 'MB']
+
 
 
 def main(argv): 
-
-    argument = '' 
 
     try:
 
@@ -31,8 +51,6 @@ def main(argv):
 
 
     for opt, arg in opts:
-
-        print(opt, arg)
 
         if opt in ("--help"):
             help()
@@ -75,15 +93,13 @@ def help():
 def solve_problem(problemset, n_givens):
     print
     print("------------------")
-    print("Number of givens: " + n_givens)
-    solve(problemset)
+    solve(problemset, n_givens)
     print("------------------")
     print
 
     
 
-def v(i, j, d): 
-
+def v(i, j, d):
     return 81 * (i - 1) + 9 * (j - 1) + d
 
 
@@ -152,9 +168,40 @@ def sudoku_clauses():
 
     return res
 
+def make_json(output, n_givens, time):
+
+    result = copy.deepcopy(object_template)
+
+    result['givens'] = n_givens
+
+    lines = output.split('\nc')
+
+    # Delete table header and footer
+    lines = lines[4:-4]
+    lines = [line for line in lines if len(line) > 1]
+
+    # Each line represents a phase of the SAT-solver, except for the line that
+    # indicates the 'initial reduction limit'. That case is handled in the if/elif
+    # Example: s   0.0   0.0   267  63.9    61     8     0     0   0.0   0.3
+    for line in lines:
+
+        # separate values
+        split_line = line.split()
+        phase = split_line[0]
+
+        # Check if reduction has taken place
+        if phase in 's+R1':
+            # assign (phase, value) tuple to corresponding variable
+            for i, value in enumerate(split_line[1:]):
+                result['output']['statistics'][measure_labels[i]].append((phase, value))
+        elif phase == 'initial':
+            result['output']['reduction'] = split_line[-2]
+
+    pprint(result)
 
 
-def solve(grid):
+
+def solve(grid, n_givens):
 
     #solve a Sudoku problem
 
@@ -176,30 +223,18 @@ def solve(grid):
 
                 clauses.append([v(i, j, d)])
 
-    # solve the SAT problem
     start = time.time()
-    sol = pycosat.solve(clauses, verbose = 1)
+
+    # Run solve as subprocess and send printed output to string
+    lines_to_run = "import pycosat; pycosat.solve(" + json.dumps(clauses) + ", verbose=1)"
+    process = subprocess.Popen(["python", "-c", lines_to_run], stdout=subprocess.PIPE)
+
     end = time.time()
 
-    print("Time: "+str(end - start))
 
+    out, outerr = process.communicate()
 
-    def read_cell(i, j):
-        # return the digit of cell i, j according to the solution
-
-        for d in range(1, 10):
-            if v(i, j, d) in sol:
-                return d
-
-
-
-    for i in range(1, 10):
-
-        for j in range(1, 10):
-
-            grid[i - 1][j - 1] = read_cell(i, j)
-
-
+    make_json(out, n_givens, start - end)
 
 
 
