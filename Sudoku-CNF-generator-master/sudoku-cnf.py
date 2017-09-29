@@ -4,108 +4,68 @@ https://github.com/taufanardi/sudoku-sat-solver/blob/master/Sudoku.py
 
 '''
 
-
-
-import pycosat
-import sys, getopt
-import time
 import numpy as np
 import subprocess
 import json
-import copy
+import csv
+import yappi
 
-object_template = {
-    'givens' : '',
-    'output' : {
-        'reduction' : 0, # initial reduction limit
-        'statistics' : {
-            'seconds' : [],
-            'level' : [],
-            'variables' : [],
-            'used' : [],
-            'original' : [],
-            'conflicts' : [],
-            'learned' : [],
-            'limit' : [],
-            'agility' : [],
-            'MB' : []
-        }
-    }
-}
+MEASURE_LABELS = ['seconds', 'level', 'variables', 'used', 'original', 'conflicts', 'learned', 'limit', 'agility', 'MB']
 
-measure_labels = ['seconds', 'level', 'variables', 'used', 'original', 'conflicts', 'learned', 'limit', 'agility', 'MB']
+def main():
 
+    with open('data-table.csv', 'wb') as csvfile:
+        FIELD_NAMES = ['id', 'givens', 'agility', 'used', 'seconds', 'variables', 'n_phases', 'conflicts', 'level', 'MB', 'limit', 'learned', 'original']
+        csv_writer = csv.DictWriter(csvfile, FIELD_NAMES, delimiter=";")
 
+        csv_writer.writeheader()
 
-def main(argv): 
+        data = []
 
-    try:
+        for n_clues in range(17, 40):
+            input_file_path = "../starting_grids/" + str(n_clues) + "_clues_per_line.txt"
+            with open(input_file_path, 'r') as input:
 
-        opts, args = getopt.getopt(argv,"f:h",["file","help"])
+                print("Were're at " + input_file_path)
 
-    except getopt.GetoptError:
+                # Iterate over all lines in the input file
+                sudokus = input.readlines()
+                for i, sudoku in enumerate(sudokus):
 
-        print('Argument error, check -h | --help')
+                    if i > 2: break
 
-        sys.exit(2)
+                    # Build matrix as input for solver
+                    matrix = parse_sudoku(sudoku)
 
+                    # Extract results from picosat
+                    result = solve(matrix)
 
-    for opt, arg in opts:
+                    # Add some markers
+                    result['givens'] = n_clues
+                    result['id'] = str(n_clues) + "-" + str(i)
 
-        if opt in ("--help"):
-            help()
+                    data.append(result)
 
-        elif opt in ("-f", "--file"):
-            file_name = arg
-            n_givens = file_name[:2]
-
-            input_file = open(file_name,'r').readlines()
-
-            for row in input_file:
-                # Remove excess whitespace
-                row = row.strip()
-
-                # Transform row into array of characters
-                row = np.array(list(row))
-
-                # Reshape array to fit solve_problem's expected input
-                matrix = row.reshape((9,9)).astype(int)
-                matrix = matrix.tolist()
-
-                # Solve row
-                solve_problem(matrix, n_givens)
-
-        else:
-            help()
-            sys.exit()
-
-            
-
-def help():
-
-    print('Usage:')
-    print('Sudoku.py -f <file_name> [or] --file <file_name>')
-
-    sys.exit()
+        # Write to file
+        csv_writer.writerows(data)
 
 
+def parse_sudoku(row):
+    # Remove excess whitespace
+    row = row.strip()
 
-def solve_problem(problemset, n_givens):
-    print
-    print("------------------")
-    solve(problemset, n_givens)
-    print("------------------")
-    print
+    # Transform row into array of characters
+    row = np.array(list(row))
 
-    
+    # Reshape array to fit solve_problem's expected input
+    matrix = row.reshape((9,9)).astype(int)
+    return matrix.tolist()
+
 
 def v(i, j, d):
     return 81 * (i - 1) + 9 * (j - 1) + d
 
-
-
-#Reduces Sudoku problem to a SAT clauses 
-
+#Reduces Sudoku problem to a SAT clauses
 def sudoku_clauses(): 
 
     res = []
@@ -127,7 +87,6 @@ def sudoku_clauses():
                 for dp in range(d + 1, 10):
 
                     res.append([-v(i, j, d), -v(i, j, dp)])
-
 
 
     def valid(cells): 
@@ -168,11 +127,12 @@ def sudoku_clauses():
 
     return res
 
-def make_json(output, n_givens, time):
+def make_dict(output):
 
-    result = copy.deepcopy(object_template)
+    result = {}
 
-    result['givens'] = n_givens
+    # Initialize number of phases (is incremented on restart and finish)
+    result['n_phases'] = 0
 
     lines = output.split('\nc')
 
@@ -189,21 +149,22 @@ def make_json(output, n_givens, time):
         split_line = line.split()
         phase = split_line[0]
 
-        # Check if reduction has taken place
-        if phase in 's+R1':
-            # assign (phase, value) tuple to corresponding variable
+        #Only look at the final result
+        if phase == '1':
             for i, value in enumerate(split_line[1:]):
-                result['output']['statistics'][measure_labels[i]].append((phase, value))
-        elif phase == 'initial':
-            result['output']['reduction'] = split_line[-2]
+                result[MEASURE_LABELS[i]] = value
 
-    pprint(result)
+        # Count phases
+        if phase in 's+R1':
+            result['n_phases'] += 1
+
+    return result
 
 
 
-def solve(grid, n_givens):
+def solve(grid):
 
-    #solve a Sudoku problem
+    #solve a Sudoku problem and return statisitics as nested dict
 
     clauses = sudoku_clauses()
     thefile = open('test.txt', 'w')
@@ -223,29 +184,14 @@ def solve(grid, n_givens):
 
                 clauses.append([v(i, j, d)])
 
-    start = time.time()
-
     # Run solve as subprocess and send printed output to string
     lines_to_run = "import pycosat; pycosat.solve(" + json.dumps(clauses) + ", verbose=1)"
     process = subprocess.Popen(["python", "-c", lines_to_run], stdout=subprocess.PIPE)
 
-    end = time.time()
-
-
     out, outerr = process.communicate()
 
-    make_json(out, n_givens, start - end)
+    return make_dict(out)
 
-
-
-if __name__ == '__main__':
-
-    from pprint import pprint
-
-    if(len(sys.argv[1:]) == 0):
-
-        print('Argument error, check --help')
-
-    else:
-        print(sys.argv)
-        main(sys.argv[1:])
+yappi.start()
+main()
+yappi.get_func_stats().print_all()
