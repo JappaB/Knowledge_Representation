@@ -32,8 +32,6 @@ def main():
                 sudokus = input.readlines()
                 for i, sudoku in enumerate(sudokus):
 
-                    if i > 2: break
-
                     # Build matrix as input for solver
                     matrix = parse_sudoku(sudoku)
 
@@ -192,6 +190,4 @@ def solve(grid):
 
     return make_dict(out)
 
-yappi.start()
 main()
-yappi.get_func_stats().print_all()
