@@ -6,6 +6,18 @@ NEG = "-"
 ZER = "0"
 AMB = "?"
 
+value_control_model = {
+    "VC" : [(("volume", MAX), ("outflow", MAX)), (("volume", ZER), ("outflow", ZER))],
+}
+
+influence_model = {
+    "volume" : [("inflow", POS), ("outflow", NEG)]
+}
+
+proportionality_model = {
+    "outflow" : [("volume", POS)]
+}
+
 # Calculates the sign of the affected quantity by adding the signs of the
 # two quantities that determine the affected. Can be used for both influence
 # and proportionality calculus.
@@ -36,7 +48,7 @@ def generate_all_states():
 
     for derivative_in in derivative_values:
         for derivative_out in  derivative_values:
-            for derivative_vol in [NEG, ZER, POS, AMB]:
+            for derivative_vol in derivative_values:
                 for magnitude_in in [ZER, POS]:
                     for magnitude_out in [ZER, POS, MAX]:
                         for magnitude_vol in [ZER, POS, MAX]:
@@ -82,8 +94,10 @@ def valid_state(state):
             source2, sign2 = influences[1]
             effect2 = quantity_multiplication(state[source2].magnitude, sign2)
 
+            addition = quantity_addition(effect1, effect2)
+
             # The addition of the effects should match the derivative of the affected quantity
-            if not state[quantity].derivative == quantity_addition(effect1, effect2):
+            if not (state[quantity].derivative == addition or addition == AMB):
                 calculus_check = False
 
     for quantity, proportionalities in proportionality_model.iteritems():
@@ -93,14 +107,7 @@ def valid_state(state):
             source, sign = proportionalities[0]
             effect = quantity_multiplication(state[source].derivative, sign)
 
-
-            if state[quantity].derivative == effect:
-                print "Source derivative: ", state[source].derivative
-                print "Sign: ", sign
-                print "Effect: ", effect
-
             if not state[quantity].derivative == effect:
-
                 calculus_check = False
 
     return all_vc_hold and der_matches_mag and calculus_check
@@ -144,18 +151,6 @@ def valid_transition(state1, state2):
     # eg. MAX+NEG or ZER+POS
 
     return True
-
-value_control_model = {
-    "VC" : [(("volume", MAX), ("outflow", MAX)), (("volume", ZER), ("outflow", ZER))],
-}
-
-influence_model = {
-    "volume" : [("inflow", POS), ("outflow", NEG)]
-}
-
-proportionality_model = {
-    "outflow" : [("volume", POS)]
-}
 
 class Inflow:
     magnitude = None
@@ -229,12 +224,6 @@ class State:
     outflow = None
     inflow = None
 
-    conceptual_model = {
-        outflow : [(volume, "I", NEG)],
-        volume : [(outflow, "P", POS), ("outflow", "VC", MAX), ("outflow", "VC", ZER)],
-        inflow : [(volume, "I", POS)]
-    }
-
     def __str__(self):
         pretty_print = "Quantity | Magnitude | Derivative \n" \
                        "Inflow:  | " + self.inflow.magnitude + " \t\t | " + self.inflow.derivative + "\n" \
@@ -286,8 +275,7 @@ def main():
         if valid_transition(state2.__dict__, state1.__dict__):
             valid_transitions.append( (state2, state1) )
 
-    # for state in valid_states:
-    #     print state
+    print len(valid_transitions)
 
 if __name__ == '__main__':
 	main()
