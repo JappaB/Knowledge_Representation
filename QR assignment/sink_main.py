@@ -1,5 +1,5 @@
 import itertools
-import graphviz
+from graphviz import Digraph
 
 MAX = "MAX"
 POS = "+"
@@ -221,9 +221,13 @@ class Volume:
         return not self.__eq__(other)
 
 class State:
+    id = None
     volume = None
     outflow = None
     inflow = None
+
+    def set_id(self, id):
+        self.id = id
 
     def get_state(self):
         return {
@@ -253,6 +257,17 @@ class State:
     def __ne__(self, other):
         return not self.__eq__(other)
 
+def create_state_graph(components, relations):
+    u = Digraph()
+
+    for state in components:
+        u.node(str(state.id), str(state))
+
+    for transition in relations:
+        u.edge(str(transition[0].id), str(transition[1].id))
+
+    print(u.source)
+    u.view()
 
 def main():
     vol = Volume(NEG, NEG)
@@ -273,7 +288,10 @@ def main():
 
     states = generate_all_states()
     valid_states = list(filter(lambda x: valid_state(x.get_state()), states))
-    print len(valid_states)
+    print len(valid_states), "valid states"
+
+    for i, state in enumerate(valid_states):
+        state.set_id(i + 1)
 
     valid_transitions = []
     for state1, state2 in itertools.combinations(valid_states, 2):
@@ -284,6 +302,8 @@ def main():
             valid_transitions.append( (state2, state1) )
 
     print len(valid_transitions)
+
+    create_state_graph(valid_states, valid_transitions)
 
 if __name__ == '__main__':
 	main()
