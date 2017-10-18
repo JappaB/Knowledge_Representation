@@ -1,4 +1,5 @@
 import itertools
+import graphviz
 
 MAX = "MAX"
 POS = "+"
@@ -224,6 +225,13 @@ class State:
     outflow = None
     inflow = None
 
+    def get_state(self):
+        return {
+            "volume" : self.volume,
+            "outflow" : self.outflow,
+            "inflow" : self.inflow
+        }
+
     def __str__(self):
         pretty_print = "Quantity | Magnitude | Derivative \n" \
                        "Inflow:  | " + self.inflow.magnitude + " \t\t | " + self.inflow.derivative + "\n" \
@@ -238,7 +246,7 @@ class State:
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-            return self.__dict__ == other.__dict__
+            return self.get_state() == other.get_state()
         else:
            return False
 
@@ -264,15 +272,15 @@ def main():
     #         print(q1 + " and ", q2, '=', quantity_multiplication(q1, q2))
 
     states = generate_all_states()
-    valid_states = list(filter(lambda x: valid_state(x.__dict__), states))
+    valid_states = list(filter(lambda x: valid_state(x.get_state()), states))
     print len(valid_states)
 
     valid_transitions = []
     for state1, state2 in itertools.combinations(valid_states, 2):
 
-        if valid_transition(state1.__dict__, state2.__dict__):
+        if valid_transition(state1.get_state(), state2.get_state()):
             valid_transitions.append( (state1, state2) )
-        if valid_transition(state2.__dict__, state1.__dict__):
+        if valid_transition(state2.get_state(), state1.get_state()):
             valid_transitions.append( (state2, state1) )
 
     print len(valid_transitions)
