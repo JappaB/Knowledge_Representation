@@ -69,7 +69,7 @@ def index_distance(l, item1, item2):
     i1 = l.index(item1)
     i2 = l.index(item2)
 
-    return abs(i1 - i2)
+    return i2 - i1
 
 def valid_state(state):
     # Value Control relations must hold
@@ -137,42 +137,58 @@ def valid_transition(state1, state2):
 
     # Next state should be a continuous child of previous state
     continuous = True
+    derivative_before_mag = True
+    signs_mag_der = True
     # Check if it really is in line with the rule
-    if continuous:
-        for label, quantity in state1_values.iteritems():
+    for label, quantity in state1_values.iteritems():
 
-            # Continuity (derivatives can't change sign without passing STD)
-            # Also holds for quantities (can't go from ZER to MAX)
-            # Check if derivative changes with more than a single step
-            derivative_change = index_distance(quantity.der_q_space, quantity.derivative, state2_values[label].derivative)
+        # Continuity (derivatives can't change sign without passing STD)
+        # Also holds for quantities (can't go from ZER to MAX)
+        # Check if derivative changes with more than a single step
+        derivative_change = index_distance(quantity.der_q_space, quantity.derivative, state2_values[label].derivative)
 
-            if derivative_change > 1:
-                continuous = False
+        if abs(derivative_change) > 1:
+            continuous = False
+            break
 
-            # Check if magnitude changes with more than a single step
-            magnitude_change = index_distance(quantity.mag_q_space, quantity.magnitude, state2_values[label].magnitude)
-            if magnitude_change > 1:
-                continuous = False
+        # Check if magnitude changes with more than a single step
+        magnitude_change = index_distance(quantity.mag_q_space, quantity.magnitude, state2_values[label].magnitude)
+        if abs(magnitude_change) > 1:
+            continuous = False
+            break
 
 
         # Derivative has to change before magnitude
+        derivative_before_mag = True
+        if abs(derivative_change) == 1 and abs(magnitude_change) != 0:
+            derivative_before_mag = False
+            break
+
+
+
+        #Positive derivative can't lead to negative mag change, and vice versa
+
+        if quantity.derivative == ZER and state2_values[label].magnitude != state1_values[label].magnitude:
+            signs_mag_der = False
+            break
+        if quantity.derivative == POS and magnitude_change < 0:
+            signs_mag_der = False
+            break
+        if quantity.derivative == NEG and magnitude_change > 0:
+            if state1.id == 167 and state2.id == 333:
+                print "quantity mag change", magnitude_change
+                print "quantity derivative s1", quantity.derivative
+            signs_mag_der = False
+            break
+
 
 
         # Magnitude can't change while derivative is zero
 
 
-        # Point quantities change before ranges
-        # mag: ZER, der: POS must transit to POS,POS
-        # if (ZER+POS -> POS+POS) should hold
-
-
-        # mag: MAX, der: NEG must transit to POS,NEG
-        # if (MAX+NEG -> POS+NEG) should hold
-
-
         # You cannot change the inflow (derivative) during an instable point state,
         # eg. MAX+NEG or ZER+POS
-    return correct_follow_up and continuous
+    return (correct_follow_up and continuous and derivative_before_mag and signs_mag_der)
 
 class Inflow:
     magnitude = None
@@ -315,12 +331,6 @@ def main():
             valid_transitions.append( (state1, state2) )
         if valid_transition(state2, state1):
             valid_transitions.append( (state2, state1) )
-
-        counter+=1
-        if counter == 20:
-            break
-
-
     create_state_graph(valid_states, valid_transitions)
 
 if __name__ == '__main__':
