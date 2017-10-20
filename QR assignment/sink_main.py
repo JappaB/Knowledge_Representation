@@ -148,9 +148,6 @@ def valid_transition(state1, state2):
         # Also holds for quantities (can't go from ZER to MAX)
         # Check if derivative changes with more than a single step
         derivative_change = index_distance(quantity.der_q_space, quantity.derivative, state2_values[label].derivative)
-
-
-
         if derivative_change != 1 and derivative_change != 0: return False
 
         # Check if magnitude changes with more than a single step
@@ -180,9 +177,13 @@ def valid_transition(state1, state2):
             if label in instable_quants and state1_values[label] == state2_values[label]:
                 print label, ":", state1.id, "->", state2.id
                 return False
-            # quantity not causing the instability changes
-            if label not in instable_quants and state2_values[label] != state2_values[label]:
+
+            # inflow is not instable but changes during instable state
+            if "inflow" not in instable_quants and state1_values["inflow"] != state2_values["inflow"]:
                 return False
+
+
+
 
     return True
 
