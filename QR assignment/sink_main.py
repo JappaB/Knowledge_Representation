@@ -119,73 +119,18 @@ def valid_state(state):
     return all_vc_hold and der_matches_mag and calculus_check
 
 
-def instable_transition_state(state):
-    instable_quantities = []
-
-    for label, quantiy in state.get_state().iteritems():
-        if quantiy.symbol_pair() in [MAX+NEG, ZER+POS]:
-            instable_quantities.append(label)
-
-    return instable_quantities
-
-
 # state1: starting state dictionary
 # state2: resulting state dictionary
 # NB: Is directional
-def valid_transition(state1, state2):
+def valid_transition(start, end):
 
+    correct_follow_up = True
 
-    state1_values = state1.get_state()
-    state2_values = state2.get_state()
+    for quantity in start.instable_quantities():
+        if end.get_state()[quantity].magnitude != POS: correct_follow_up = False
 
-    instable_quants = instable_transition_state(state1)
-    if len(instable_quants):
-        print "instable quantities:", instable_quants, state1.id, state2.id
+    return correct_follow_up
 
-    for label, quantity in state1_values.iteritems():
-
-        # Continuity (derivatives can't change sign without passing STD)
-        # Also holds for quantities (can't go from ZER to MAX)
-        # Check if derivative changes with more than a single step
-        derivative_change = index_distance(quantity.der_q_space, quantity.derivative, state2_values[label].derivative)
-        if derivative_change != 1 and derivative_change != 0: return False
-
-        # Check if magnitude changes with more than a single step
-        magnitude_change = index_distance(quantity.mag_q_space, quantity.magnitude, state2_values[label].magnitude)
-
-        if magnitude_change != 1 and magnitude_change != 0: return False
-
-        # Derivative has to change before magnitude
-        if derivative_change == 1 and magnitude_change != 0: return False
-
-        # Magnitude can't change while derivative is zero
-        if quantity.derivative == ZER and magnitude_change != 0: return False
-
-        # Point quantities change before ranges
-        # mag: ZER, der: POS must transit to POS,POS
-        # if (ZER+POS -> POS+POS) should hold
-        if not(not(quantity.symbol_pair() == ZER+POS) or state2_values[label].symbol_pair() == POS+POS): return False
-
-        # mag: MAX, der: NEG must transit to POS,NEG
-        # if (MAX+NEG -> POS+NEG) should hold
-        if not(not(quantity.symbol_pair()) == MAX+NEG or state2_values[label].symbol_pair() == POS+NEG): return False
-
-        # You cannot change the inflow (derivative) during an instable point state,
-        # eg. MAX+NEG or ZER+POS
-        if len(instable_quants) > 0:
-            # quantity is instable and does not change
-            if label in instable_quants and state1_values[label] == state2_values[label]:
-                print label, ":", state1.id, "->", state2.id
-                return False
-
-            # inflow is not instable but changes during instable state
-            if "inflow" not in instable_quants and state1_values["inflow"] != state2_values["inflow"]:
-                return False
-
-
-
-
-    return True
 
 class Inflow:
     magnitude = None
@@ -263,6 +208,15 @@ class State:
     def set_id(self, id):
         self.id = id
 
+    def instable_quantities(self):
+        quants = []
+
+        for label, quantiy in self.get_state().iteritems():
+            if quantiy.symbol_pair() in [MAX+NEG, ZER+POS]:
+                quants.append(label)
+
+        return quants
+
     def get_state(self):
         return {
             "volume" : self.volume,
@@ -274,7 +228,8 @@ class State:
         pretty_print = "id:" + str(self.id) + "| M | D \n" \
                        "Inflow:  | " + self.inflow.magnitude + "  | " + self.inflow.derivative + "\n" \
                        "Volume:  | " + self.volume.magnitude + "  | " + self.volume.derivative + "\n" \
-                       "Outflow: | " + self.outflow.magnitude + "  | " + self.outflow.derivative + "\n"
+                       "Outflow: | " + self.outflow.magnitude + "  | " + self.outflow.derivative + "\n" \
+                       "Instablilites: |" + str(self.instable_quantities())
         return pretty_print
 
     def __init__(self, inf, outf, vol):
