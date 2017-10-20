@@ -69,6 +69,8 @@ def index_distance(l, item1, item2):
     i1 = l.index(item1)
     i2 = l.index(item2)
 
+    # print "position in",l,"state1",i1,"state2",i2
+    print abs(i1 - i2)
     return abs(i1 - i2)
 
 def valid_state(state):
@@ -122,15 +124,53 @@ def valid_state(state):
 # state1: starting state dictionary
 # state2: resulting state dictionary
 # NB: Is directional
-def valid_transition(start, end):
+def valid_transition(state1, state2):
 
-    correct_follow_up = True
 
-    for quantity in start.instable_quantities():
-        if end.get_state()[quantity].magnitude != POS: correct_follow_up = False
+    state1_values = state1.get_state()
+    state2_values = state2.get_state()
 
-    return correct_follow_up
+    # if instable state => go to stable state
 
+    # Next state should be a continuous child of previous state
+    continuous = True
+    # Check if it really is in line with the rule
+    if continuous:
+        for label, quantity in state1_values.iteritems():
+            print state1_values[label]
+
+            # Continuity (derivatives can't change sign without passing STD)
+            # Also holds for quantities (can't go from ZER to MAX)
+            # Check if derivative changes with more than a single step
+            derivative_change = index_distance(quantity.der_q_space, quantity.derivative, state2_values[label].derivative)
+
+            if derivative_change > 1:
+                continuous = False
+
+            # Check if magnitude changes with more than a single step
+            magnitude_change = index_distance(quantity.mag_q_space, quantity.magnitude, state2_values[label].magnitude)
+            if magnitude_change > 1:
+                continuous = False
+
+
+        # Derivative has to change before magnitude
+
+
+        # Magnitude can't change while derivative is zero
+
+
+        # Point quantities change before ranges
+        # mag: ZER, der: POS must transit to POS,POS
+        # if (ZER+POS -> POS+POS) should hold
+
+
+        # mag: MAX, der: NEG must transit to POS,NEG
+        # if (MAX+NEG -> POS+NEG) should hold
+
+
+        # You cannot change the inflow (derivative) during an instable point state,
+        # eg. MAX+NEG or ZER+POS
+    return True
 
 class Inflow:
     magnitude = None
@@ -266,12 +306,17 @@ def main():
     #     state.set_id(i + 1)
 
     valid_transitions = []
+    counter =0
     for state1, state2 in itertools.combinations(valid_states, 2):
 
         if valid_transition(state1, state2):
             valid_transitions.append( (state1, state2) )
         if valid_transition(state2, state1):
             valid_transitions.append( (state2, state1) )
+
+        counter+=1
+        if counter == 20:
+            break
 
 
     create_state_graph(valid_states, valid_transitions)
