@@ -1,5 +1,8 @@
 import itertools
 from graphviz import Digraph
+import sys
+
+sys.path.append("/usr/local/lib/graphviz/")
 
 MAX = "MAX"
 POS = "+"
@@ -56,7 +59,9 @@ def generate_all_states():
                             volume = Volume(magnitude_vol, derivative_vol)
                             inflow = Inflow(magnitude_in, derivative_in)
                             outflow = Outflow(magnitude_out, derivative_out)
-                            states.append(State(inflow, outflow, volume))
+                            state = State(inflow, outflow, volume)
+                            state.set_id(len(states) + 1)
+                            states.append(state)
 
     return states
 
@@ -114,42 +119,70 @@ def valid_state(state):
     return all_vc_hold and der_matches_mag and calculus_check
 
 
+def instable_transition_state(state):
+    instable_quantities = []
+
+    for label, quantiy in state.get_state().iteritems():
+        if quantiy.symbol_pair() in [MAX+NEG, ZER+POS]:
+            instable_quantities.append(label)
+
+    return instable_quantities
+
+
 # state1: starting state dictionary
 # state2: resulting state dictionary
 # NB: Is directional
 def valid_transition(state1, state2):
 
 
-    for label, quantity in state1.iteritems():
+    state1_values = state1.get_state()
+    state2_values = state2.get_state()
+
+    instable_quants = instable_transition_state(state1)
+    if len(instable_quants):
+        print "instable quantities:", instable_quants, state1.id, state2.id
+
+    for label, quantity in state1_values.iteritems():
+
         # Continuity (derivatives can't change sign without passing STD)
         # Also holds for quantities (can't go from ZER to MAX)
         # Check if derivative changes with more than a single step
-        derivative_change = index_distance(quantity.der_q_space, quantity.derivative, state2[label].derivative)
+        derivative_change = index_distance(quantity.der_q_space, quantity.derivative, state2_values[label].derivative)
+
+
 
         if derivative_change != 1 and derivative_change != 0: return False
 
         # Check if magnitude changes with more than a single step
-        magnitude_change = index_distance(quantity.mag_q_space, quantity.magnitude, state2[label].magnitude)
+        magnitude_change = index_distance(quantity.mag_q_space, quantity.magnitude, state2_values[label].magnitude)
+
         if magnitude_change != 1 and magnitude_change != 0: return False
 
         # Derivative has to change before magnitude
         if derivative_change == 1 and magnitude_change != 0: return False
 
+        # Magnitude can't change while derivative is zero
+        if quantity.derivative == ZER and magnitude_change != 0: return False
 
         # Point quantities change before ranges
-
         # mag: ZER, der: POS must transit to POS,POS
         # if (ZER+POS -> POS+POS) should hold
-        if not(not(quantity.symbol_pair() == ZER+POS) or state2[label].symbol_pair() == POS+POS): return False
+        if not(not(quantity.symbol_pair() == ZER+POS) or state2_values[label].symbol_pair() == POS+POS): return False
 
         # mag: MAX, der: NEG must transit to POS,NEG
         # if (MAX+NEG -> POS+NEG) should hold
-        if not(not(quantity.symbol_pair()) == MAX+NEG or state2[label].symbol_pair() == POS+NEG): return False
+        if not(not(quantity.symbol_pair()) == MAX+NEG or state2_values[label].symbol_pair() == POS+NEG): return False
 
-
-
-    # You cannot change the inflow (derivative) during an instable point state,
-    # eg. MAX+NEG or ZER+POS
+        # You cannot change the inflow (derivative) during an instable point state,
+        # eg. MAX+NEG or ZER+POS
+        if len(instable_quants) > 0:
+            # quantity is instable and does not change
+            if label in instable_quants and state1_values[label] == state2_values[label]:
+                print label, ":", state1.id, "->", state2.id
+                return False
+            # quantity not causing the instability changes
+            if label not in instable_quants and state2_values[label] != state2_values[label]:
+                return False
 
     return True
 
@@ -157,7 +190,7 @@ class Inflow:
     magnitude = None
     derivative = None
     mag_q_space = [ZER, POS]
-    der_q_space = [ZER, POS, NEG]
+    der_q_space = [NEG, ZER, POS]
 
     def symbol_pair(self):
         return self.magnitude + self.derivative
@@ -180,7 +213,7 @@ class Outflow:
     magnitude = None
     derivative = None
     mag_q_space = [ZER, POS, MAX]
-    der_q_space = [ZER, POS, NEG]
+    der_q_space = [NEG, ZER, POS]
 
     def symbol_pair(self):
         return self.magnitude + self.derivative
@@ -202,7 +235,7 @@ class Volume:
     magnitude = None
     derivative = None
     mag_q_space = [ZER, POS, MAX]
-    der_q_space = [ZER, POS, NEG, AMB]
+    der_q_space = [NEG, ZER, POS]
 
     def symbol_pair(self):
         return self.magnitude + self.derivative
@@ -237,10 +270,10 @@ class State:
         }
 
     def __str__(self):
-        pretty_print = "Quantity | Magnitude | Derivative \n" \
-                       "Inflow:  | " + self.inflow.magnitude + " \t\t | " + self.inflow.derivative + "\n" \
-                       "Volume:  | " + self.volume.magnitude + " \t\t | " + self.volume.derivative + "\n" \
-                       "Outflow: | " + self.outflow.magnitude + " \t\t | " + self.outflow.derivative + "\n"
+        pretty_print = "id:" + str(self.id) + "| M | D \n" \
+                       "Inflow:  | " + self.inflow.magnitude + "  | " + self.inflow.derivative + "\n" \
+                       "Volume:  | " + self.volume.magnitude + "  | " + self.volume.derivative + "\n" \
+                       "Outflow: | " + self.outflow.magnitude + "  | " + self.outflow.derivative + "\n"
         return pretty_print
 
     def __init__(self, inf, outf, vol):
@@ -266,42 +299,24 @@ def create_state_graph(components, relations):
     for transition in relations:
         u.edge(str(transition[0].id), str(transition[1].id))
 
-    print(u.source)
-    u.view()
+    u.save("graph.gv")
 
 def main():
-    vol = Volume(NEG, NEG)
-    outf = Outflow(NEG, NEG)
-    inf = Inflow(NEG, NEG)
-
-
-    # Test influence addition
-    # for q1 in [NEG, ZER, POS]:
-    #     for q2 in [NEG, ZER, POS]:
-    #         print(q1 + " and ", q2, '=', quantity_addition(q1, q2))
-    #
-    # print "--------"
-    #
-    # for q1 in [NEG, ZER, POS]:
-    #     for q2 in [NEG, ZER, POS]:
-    #         print(q1 + " and ", q2, '=', quantity_multiplication(q1, q2))
 
     states = generate_all_states()
     valid_states = list(filter(lambda x: valid_state(x.get_state()), states))
-    print len(valid_states), "valid states"
 
-    for i, state in enumerate(valid_states):
-        state.set_id(i + 1)
+    # for i, state in enumerate(valid_states):
+    #     state.set_id(i + 1)
 
     valid_transitions = []
     for state1, state2 in itertools.combinations(valid_states, 2):
 
-        if valid_transition(state1.get_state(), state2.get_state()):
+        if valid_transition(state1, state2):
             valid_transitions.append( (state1, state2) )
-        if valid_transition(state2.get_state(), state1.get_state()):
+        if valid_transition(state2, state1):
             valid_transitions.append( (state2, state1) )
 
-    print len(valid_transitions)
 
     create_state_graph(valid_states, valid_transitions)
 
