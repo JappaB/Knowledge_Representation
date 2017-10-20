@@ -69,8 +69,6 @@ def index_distance(l, item1, item2):
     i1 = l.index(item1)
     i2 = l.index(item2)
 
-    # print "position in",l,"state1",i1,"state2",i2
-    print abs(i1 - i2)
     return abs(i1 - i2)
 
 def valid_state(state):
@@ -131,13 +129,17 @@ def valid_transition(state1, state2):
     state2_values = state2.get_state()
 
     # if instable state => go to stable state
+    correct_follow_up = True
+
+    for quantity in state1.instable_quantities():
+        if state2.get_state()[quantity].magnitude != POS: correct_follow_up = False
+
 
     # Next state should be a continuous child of previous state
     continuous = True
     # Check if it really is in line with the rule
     if continuous:
         for label, quantity in state1_values.iteritems():
-            print state1_values[label]
 
             # Continuity (derivatives can't change sign without passing STD)
             # Also holds for quantities (can't go from ZER to MAX)
@@ -170,7 +172,7 @@ def valid_transition(state1, state2):
 
         # You cannot change the inflow (derivative) during an instable point state,
         # eg. MAX+NEG or ZER+POS
-    return True
+    return correct_follow_up and continuous
 
 class Inflow:
     magnitude = None
