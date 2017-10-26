@@ -390,11 +390,11 @@ class State:
         }
 
     def __str__(self):
+       #"Height:   | " + self.height.magnitude + "  | " + self.height.derivative + "\n" \
+       #"Pressure: | " + self.pressure.magnitude + " | " + self.pressure.derivative + "\n"\
         pretty_print = "id" +str(self.id)+"  | M | D \n" \
                        "Inflow:   | " + self.inflow.magnitude + "  | " + self.inflow.derivative + "\n" \
                        "Volume:   | " + self.volume.magnitude + "  | " + self.volume.derivative + "\n" \
-                       "Height:   | " + self.height.magnitude + "  | " + self.height.derivative + "\n" \
-                       "Pressure: | " + self.pressure.magnitude + " | " + self.pressure.derivative + "\n"\
                        "Outflow:  | " + self.outflow.magnitude + "  | " + self.outflow.derivative + "\n"
         return pretty_print
 
@@ -413,6 +413,51 @@ class State:
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+def state_difference(state1, state2):
+    diff = {}
+    for label, value in state1.get_state().iteritems():
+        der_change = index_distance(value.der_q_space, value.derivative, state2.get_state()[label].derivative)
+        mag_change = index_distance(value.mag_q_space, value.magnitude, state2.get_state()[label].magnitude)
+        diff[label] = (mag_change, der_change)
+
+    return diff
+
+def describe_intrastate(state):
+    translation_derivative = {
+        "sink" : {
+            POS : "increasing",
+            ZER : "steady",
+            NEG : "decreasing"
+        },
+        "tap" : {
+            POS : "opening",
+            ZER : "idle",
+            NEG : "closing"
+        }
+    }
+
+    translation_magnitude = {
+        "sink" : {
+            MAX : "full",
+            POS : "filled but not full",
+            ZER : "empty"
+        }
+    }
+
+    translation_explanation = {
+        POS : "there is more water coming out of the tap than is going through the drain",
+        ZER : "exactly the same amount of water is going down the drain as is coming in from the tap",
+        NEG : "there is more water going out of the drain than is coming trough the tap"
+    }
+
+    intra_tap = "The tap is " + translation_derivative["tap"][state.inflow.derivative]
+    level_sink = "The sink is " + translation_magnitude["sink"][state.volume.magnitude]
+    intra_sink = "This level is " + translation_derivative["sink"][state.volume.derivative] + \
+           " because " + translation_explanation[state.volume.derivative]
+
+    return intra_tap + ". " + level_sink + ". " + intra_sink
+
 
 def create_state_graph(components, relations):
     u = Digraph()
@@ -469,17 +514,17 @@ def main():
     states = generate_all_states()
     valid_states = list(filter(lambda x: valid_state(x.get_state()), states))
 
-    # for i, state in enumerate(valid_states):
-    #     state.set_id(i + 1)
-
     valid_transitions = []
-    counter =0
+    counter = 0
     for state1, state2 in itertools.combinations(valid_states, 2):
 
         if valid_transition(state1, state2):
             valid_transitions.append( (state1, state2) )
         if valid_transition(state2, state1):
             valid_transitions.append( (state2, state1) )
+
+    for state in valid_states:
+        print describe_intrastate(state)
 
     create_state_graph(valid_states, valid_transitions)
 

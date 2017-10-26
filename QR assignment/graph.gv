@@ -1,226 +1,178 @@
 digraph {
 	graph [center=true margin=0.2 nodesep=0.1 rankdir=UD ranksep=0.3]
-	122 [label="id122  | M | D 
+		122 [label="id122  | M | D 
 Inflow:   | +  | -
 Volume:   | +  | -
-Height:   | +  | -
-Pressure: | + | -
 Outflow:  | +  | -
 "]
-	162 [label="id162  | M | D 
+		162 [label="id162  | M | D 
 Inflow:   | +  | -
 Volume:   | MAX  | -
-Height:   | MAX  | -
-Pressure: | MAX | -
 Outflow:  | MAX  | -
 "]
-	6602 [label="id6602  | M | D 
+		6602 [label="id6602  | M | D 
 Inflow:   | +  | -
 Volume:   | +  | 0
-Height:   | +  | 0
-Pressure: | + | 0
 Outflow:  | +  | 0
 "]
-	6642 [label="id6642  | M | D 
+		6642 [label="id6642  | M | D 
 Inflow:   | +  | -
 Volume:   | MAX  | 0
-Height:   | MAX  | 0
-Pressure: | MAX | 0
 Outflow:  | MAX  | 0
 "]
-	13042 [label="id13042  | M | D 
+		13042 [label="id13042  | M | D 
 Inflow:   | +  | -
 Volume:   | 0  | +
-Height:   | 0  | +
-Pressure: | 0 | +
 Outflow:  | 0  | +
 "]
-	13082 [label="id13082  | M | D 
+		13082 [label="id13082  | M | D 
 Inflow:   | +  | -
 Volume:   | +  | +
-Height:   | +  | +
-Pressure: | + | +
 Outflow:  | +  | +
 "]
-	13163 [label="id13163  | M | D 
+		13163 [label="id13163  | M | D 
 Inflow:   | 0  | 0
 Volume:   | +  | -
-Height:   | +  | -
-Pressure: | + | -
 Outflow:  | +  | -
 "]
-	13203 [label="id13203  | M | D 
+		13203 [label="id13203  | M | D 
 Inflow:   | 0  | 0
 Volume:   | MAX  | -
-Height:   | MAX  | -
-Pressure: | MAX | -
 Outflow:  | MAX  | -
 "]
-	13244 [label="id13244  | M | D 
+		13244 [label="id13244  | M | D 
 Inflow:   | +  | 0
 Volume:   | +  | -
-Height:   | +  | -
-Pressure: | + | -
 Outflow:  | +  | -
 "]
-	13284 [label="id13284  | M | D 
+		13284 [label="id13284  | M | D 
 Inflow:   | +  | 0
 Volume:   | MAX  | -
-Height:   | MAX  | -
-Pressure: | MAX | -
 Outflow:  | MAX  | -
 "]
-	19603 [label="id19603  | M | D 
+		19603 [label="id19603  | M | D 
 Inflow:   | 0  | 0
 Volume:   | 0  | 0
-Height:   | 0  | 0
-Pressure: | 0 | 0
 Outflow:  | 0  | 0
 "]
-	19724 [label="id19724  | M | D 
+		19724 [label="id19724  | M | D 
 Inflow:   | +  | 0
 Volume:   | +  | 0
-Height:   | +  | 0
-Pressure: | + | 0
 Outflow:  | +  | 0
 "]
-	19764 [label="id19764  | M | D 
+		19764 [label="id19764  | M | D 
 Inflow:   | +  | 0
 Volume:   | MAX  | 0
-Height:   | MAX  | 0
-Pressure: | MAX | 0
 Outflow:  | MAX  | 0
 "]
-	26164 [label="id26164  | M | D 
+		26164 [label="id26164  | M | D 
 Inflow:   | +  | 0
 Volume:   | 0  | +
-Height:   | 0  | +
-Pressure: | 0 | +
 Outflow:  | 0  | +
 "]
-	26204 [label="id26204  | M | D 
+		26204 [label="id26204  | M | D 
 Inflow:   | +  | 0
 Volume:   | +  | +
-Height:   | +  | +
-Pressure: | + | +
 Outflow:  | +  | +
 "]
-	26285 [label="id26285  | M | D 
+		26285 [label="id26285  | M | D 
 Inflow:   | 0  | +
 Volume:   | +  | -
-Height:   | +  | -
-Pressure: | + | -
 Outflow:  | +  | -
 "]
-	26325 [label="id26325  | M | D 
+		26325 [label="id26325  | M | D 
 Inflow:   | 0  | +
 Volume:   | MAX  | -
-Height:   | MAX  | -
-Pressure: | MAX | -
 Outflow:  | MAX  | -
 "]
-	26366 [label="id26366  | M | D 
+		26366 [label="id26366  | M | D 
 Inflow:   | +  | +
 Volume:   | +  | -
-Height:   | +  | -
-Pressure: | + | -
 Outflow:  | +  | -
 "]
-	26406 [label="id26406  | M | D 
+		26406 [label="id26406  | M | D 
 Inflow:   | +  | +
 Volume:   | MAX  | -
-Height:   | MAX  | -
-Pressure: | MAX | -
 Outflow:  | MAX  | -
 "]
-	32725 [label="id32725  | M | D 
+		32725 [label="id32725  | M | D 
 Inflow:   | 0  | +
 Volume:   | 0  | 0
-Height:   | 0  | 0
-Pressure: | 0 | 0
 Outflow:  | 0  | 0
 "]
-	32846 [label="id32846  | M | D 
+		32846 [label="id32846  | M | D 
 Inflow:   | +  | +
 Volume:   | +  | 0
-Height:   | +  | 0
-Pressure: | + | 0
 Outflow:  | +  | 0
 "]
-	32886 [label="id32886  | M | D 
+		32886 [label="id32886  | M | D 
 Inflow:   | +  | +
 Volume:   | MAX  | 0
-Height:   | MAX  | 0
-Pressure: | MAX | 0
 Outflow:  | MAX  | 0
 "]
-	39286 [label="id39286  | M | D 
+		39286 [label="id39286  | M | D 
 Inflow:   | +  | +
 Volume:   | 0  | +
-Height:   | 0  | +
-Pressure: | 0 | +
 Outflow:  | 0  | +
 "]
-	39326 [label="id39326  | M | D 
+		39326 [label="id39326  | M | D 
 Inflow:   | +  | +
 Volume:   | +  | +
-Height:   | +  | +
-Pressure: | + | +
 Outflow:  | +  | +
 "]
-	162 -> 122
-	122 -> 6602
-	6602 -> 122
-	122 -> 13163
-	122 -> 13244
-	13244 -> 122
-	122 -> 19724
-	6642 -> 162
-	13082 -> 6602
-	6602 -> 13244
-	13244 -> 6602
-	19724 -> 6602
-	26204 -> 6602
-	13082 -> 6642
-	6642 -> 13203
-	6642 -> 13284
-	6642 -> 19764
-	19764 -> 6642
-	13042 -> 13082
-	13082 -> 19724
-	13082 -> 26204
-	26204 -> 13082
-	13203 -> 13163
-	13163 -> 19603
-	13163 -> 26285
-	13284 -> 13244
-	13244 -> 19724
-	13244 -> 26366
-	26366 -> 13244
-	13244 -> 32846
-	32886 -> 13284
-	19603 -> 32725
-	26204 -> 19724
-	26366 -> 19724
-	19724 -> 32846
-	39326 -> 19724
-	26204 -> 19764
-	19764 -> 32886
-	32886 -> 19764
-	26164 -> 26204
-	26204 -> 32846
-	32846 -> 26204
-	26204 -> 39326
-	39326 -> 26204
-	26285 -> 26366
-	26285 -> 32846
-	26325 -> 26366
-	26406 -> 26366
-	26366 -> 32846
-	32886 -> 26406
-	32725 -> 39286
-	32846 -> 39326
-	39326 -> 32846
-	39326 -> 32886
-	39286 -> 39326
+			162 -> 122
+			122 -> 6602
+			6602 -> 122
+			122 -> 13163
+			122 -> 13244
+			13244 -> 122
+			122 -> 19724
+			6642 -> 162
+			13082 -> 6602
+			6602 -> 13244
+			13244 -> 6602
+			19724 -> 6602
+			26204 -> 6602
+			13082 -> 6642
+			6642 -> 13203
+			6642 -> 13284
+			6642 -> 19764
+			19764 -> 6642
+			13042 -> 13082
+			13082 -> 19724
+			13082 -> 26204
+			26204 -> 13082
+			13203 -> 13163
+			13163 -> 19603
+			13163 -> 26285
+			13284 -> 13244
+			13244 -> 19724
+			13244 -> 26366
+			26366 -> 13244
+			13244 -> 32846
+			32886 -> 13284
+			19603 -> 32725
+			26204 -> 19724
+			26366 -> 19724
+			19724 -> 32846
+			39326 -> 19724
+			26204 -> 19764
+			19764 -> 32886
+			32886 -> 19764
+			26164 -> 26204
+			26204 -> 32846
+			32846 -> 26204
+			26204 -> 39326
+			39326 -> 26204
+			26285 -> 26366
+			26285 -> 32846
+			26325 -> 26366
+			26406 -> 26366
+			26366 -> 32846
+			32886 -> 26406
+			32725 -> 39286
+			32846 -> 39326
+			39326 -> 32846
+			39326 -> 32886
+			39286 -> 39326
 }
