@@ -128,11 +128,12 @@ def valid_transition(state1, state2):
     state1_values = state1.get_state()
     state2_values = state2.get_state()
 
-    debug = (167, 235)
+    debug = (167, 14)
 
     # if instable state => go to stable state
     correct_follow_up = True
     changed_der_inflow = state1_values["inflow"].derivative != state2_values["inflow"].derivative
+    changed_der_volume = state1_values["volume"].derivative != state2_values["volume"].derivative
 
     for quantity in state1.instable_quantities():
         if state2.get_state()[quantity].magnitude != POS:
@@ -144,6 +145,24 @@ def valid_transition(state1, state2):
             if state1.id == debug[0] and state2.id == debug[1]: print "Oeps2"
             break
 
+
+
+
+    # if inflow and outflow are at an equilibrium, but the derivative of the inflow is not zero,
+    # The derivative of the magnitude should be the derivative of the inflow in the next state.
+    if state1_values["inflow"].derivative != ZER and state1_values["volume"].derivative == ZER \
+            and state2_values["volume"].derivative != state1_values["inflow"].derivative and\
+            (state1_values["volume"].symbol_pair()!= MAX+ZER):
+            if state1.id == debug[0] and state2.id == debug[1]:
+                print "Oeps madderfakking 10"
+            return False
+
+    # getting 252->342 out
+    if state1_values["inflow"].derivative == ZER and state1_values["volume"].derivative == ZER \
+            and state2_values["volume"].derivative != state1_values["inflow"].derivative:
+        if state1.id == debug[0] and state2.id == debug[1]:
+            print "Oeps madderfakking 11"
+        return False
 
     # Next state should be a continuous child of previous state
     continuous = True
@@ -179,10 +198,15 @@ def valid_transition(state1, state2):
         # TODO: We would want to allow + - to go to 0 0
         from_posneg_to_zerzer = state1_values[label].symbol_pair() == POS+NEG \
                                 and state2_values[label].symbol_pair() == ZER+ZER
+        from_pospos_to_maxzer = state1_values[label].symbol_pair() == POS+POS \
+                                and state2_values[label].symbol_pair() == MAX+ZER
+
+        if state1.id == debug[0] and state2.id == debug[1]:
+            print not(from_posneg_to_zerzer), not(from_pospos_to_maxzer)
         # if state1.id == debug[0] and state2.id == debug[1]:
         #     print from_posneg_to_zerzer
         if abs(derivative_change) == 1 and abs(magnitude_change) != 0:
-            if not from_posneg_to_zerzer or changed_der_inflow:
+            if not (from_posneg_to_zerzer or from_pospos_to_maxzer) or (changed_der_inflow and changed_der_volume):
                 derivative_before_mag = False
                 if state1.id == debug[0] and state2.id == debug[1]: print "Oeps5"
                 break
@@ -204,8 +228,6 @@ def valid_transition(state1, state2):
             break
 
 
-
-        # Magnitude can't change while derivative is zero
 
 
         # You cannot change the inflow (derivative) during an instable point state,
