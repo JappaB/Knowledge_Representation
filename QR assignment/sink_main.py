@@ -11,7 +11,9 @@ ZER = "0"
 AMB = "?"
 
 value_control_model = {
-    "VC" : [(("volume", MAX), ("outflow", MAX)), (("volume", ZER), ("outflow", ZER))],
+    "VC" : [(("pressure", MAX), ("outflow", MAX)), (("pressure", ZER), ("outflow", ZER)),
+            (("height", MAX), ("pressure", MAX)), (("height", ZER), ("pressure", ZER)),
+            (("volume", MAX), ("height", MAX)), (("volume", ZER), ("height", ZER))]
 }
 
 influence_model = {
@@ -19,7 +21,9 @@ influence_model = {
 }
 
 proportionality_model = {
-    "outflow" : [("volume", POS)]
+    "outflow" : [("pressure", POS)],
+    "pressure" : [("height", POS)],
+    "height" : [("volume", POS)]
 }
 
 # Calculates the sign of the affected quantity by adding the signs of the
@@ -257,6 +261,50 @@ class Outflow:
     def __ne__(self, other):
         return not self.__eq__(other)
 
+class Height:
+    magnitude = None
+    derivative = None
+    mag_q_space = [ZER, POS, MAX]
+    der_q_space = [NEG, ZER, POS]
+
+    def symbol_pair(self):
+        return self.magnitude + self.derivative
+
+    def __init__(self, magnitude, derivative):
+        self.magnitude = magnitude
+        self.derivative = derivative
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+        else:
+            return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+class Pressure:
+    magnitude = None
+    derivative = None
+    mag_q_space = [ZER, POS, MAX]
+    der_q_space = [NEG, ZER, POS]
+
+    def symbol_pair(self):
+        return self.magnitude + self.derivative
+
+    def __init__(self, magnitude, derivative):
+        self.magnitude = magnitude
+        self.derivative = derivative
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+        else:
+            return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
 class Volume:
     magnitude = None
     derivative = None
@@ -282,6 +330,8 @@ class Volume:
 class State:
     id = None
     volume = None
+    height = None
+    pressure = None
     outflow = None
     inflow = None
 
@@ -301,14 +351,18 @@ class State:
         return {
             "volume" : self.volume,
             "outflow" : self.outflow,
+            "height" : self.height,
+            "pressure" : self.pressure,
             "inflow" : self.inflow
         }
 
     def __str__(self):
         pretty_print = "id:" + str(self.id) + "| M | D \n" \
-                       "Inflow:  | " + self.inflow.magnitude + "  | " + self.inflow.derivative + "\n" \
-                       "Volume:  | " + self.volume.magnitude + "  | " + self.volume.derivative + "\n" \
-                       "Outflow: | " + self.outflow.magnitude + "  | " + self.outflow.derivative + "\n" \
+                       "Inflow:   | " + self.inflow.magnitude + "  | " + self.inflow.derivative + "\n" \
+                       "Volume:   | " + self.volume.magnitude + "  | " + self.volume.derivative + "\n" \
+                       "Height:   | " + self.height.magnitude + "  | " + self.height.derivative + "\n" \
+                       "Pressure: | " + self.pressure.magnitude + " | " + self.pressure.derivative + "\n"\
+                       "Outflow:  | " + self.outflow.magnitude + "  | " + self.outflow.derivative + "\n" \
                        "Instablilites: |" + str(self.instable_quantities())
         return pretty_print
 
@@ -334,6 +388,8 @@ def create_state_graph(components, relations):
 
     for transition in relations:
         u.edge(str(transition[0].id), str(transition[1].id))
+
+    u.subgraph([1])
 
     u.save("graph.gv")
 
