@@ -1,5 +1,6 @@
 import itertools
 from graphviz import Digraph
+import tempfile
 import sys
 
 sys.path.append("/usr/local/lib/graphviz/")
@@ -428,7 +429,7 @@ class State:
     def __str__(self):
        #"Height:   | " + self.height.magnitude + "  | " + self.height.derivative + "\n" \
        #"Pressure: | " + self.pressure.magnitude + " | " + self.pressure.derivative + "\n"\
-        pretty_print = "id" +str(self.id)+"  | M | D \n" \
+        pretty_print = "id: " +str(self.id)+"  | M | D \n" \
                        "Inflow:   | " + self.inflow.magnitude + "  | " + self.inflow.derivative + "\n" \
                        "Volume:   | " + self.volume.magnitude + "  | " + self.volume.derivative + "\n" \
                        "Outflow:  | " + self.outflow.magnitude + "  | " + self.outflow.derivative + "\n"
@@ -492,7 +493,7 @@ def describe_intrastate(state):
         NEG : "there is more water going out of the drain than is coming trough the tap"
     }
 
-    intra_tap = "The tap is " + translation_magnitude["tap"][state.inflow.magnitude] + \
+    intra_tap = "the tap is " + translation_magnitude["tap"][state.inflow.magnitude] + \
                 ", and " + translation_derivative["tap"][state.inflow.derivative]
     level_sink = "The sink is " + translation_magnitude["sink"][state.volume.magnitude]
     intra_sink = "This level is " + translation_derivative["sink"][state.volume.derivative] + \
@@ -548,12 +549,18 @@ def create_state_graph(components, relations):
     u.graph_attr.update(
         ('graph' in styles and styles['graph']) or {}
     )
-    u.save("graph.gv")
+
+
+    u.view(tempfile.mktemp(".gv"))
 
 def main():
 
     states = generate_all_states()
     valid_states = list(filter(lambda x: valid_state(x.get_state()), states))
+    for i in range(len(valid_states)):
+        valid_states[i].set_id(i)
+
+    valid_state_ids = list(map(lambda x: str(x.id), valid_states))
 
     valid_transitions = []
     counter = 0
@@ -564,10 +571,53 @@ def main():
         if valid_transition(state2, state1):
             valid_transitions.append( (state2, state1) )
 
-    for state in valid_states:
-        print describe_intrastate(state)
+    valid_transition_ids = list(map(lambda x: (str(x[0].id), str(x[1].id)), valid_transitions))
 
     create_state_graph(valid_states, valid_transitions)
+
+    while True:
+        print "Do you want an interstate explanation or an intrastate explanation?"
+        choice = 0
+        while choice not in ["inter", "intra"]:
+            choice = raw_input("Type 'inter' or 'intra': ")
+
+            if choice == 'inter':
+                print "Look at the state graph and enter the id's of the states you want to compare"
+                from_state = None
+                to_state = None
+
+                while True:
+
+                    while from_state not in valid_state_ids:
+                        from_state = raw_input("From state: ")
+
+                    while to_state not in valid_state_ids or to_state == from_state:
+                        to_state = raw_input("To state: ")
+
+                    if (from_state, to_state) in valid_transition_ids:
+                        break
+                    else:
+                        from_state = 0
+                        to_state = 0
+
+                from_state_obj = valid_states[int(from_state)]
+                to_state_obj = valid_states[int(to_state)]
+                print "In the first state", describe_intrastate(from_state_obj)
+                print interstate_tap_change(from_state_obj, to_state_obj)
+                print "In the following state", describe_intrastate(to_state_obj)
+
+            if choice == 'intra':
+                state = 0
+                while state not in valid_state_ids:
+                    print "Look at the state graph and enter the id of the state you want to inspect"
+                    state = raw_input("id: ")
+
+                state_obj = valid_states[int(state)]
+                print "In this state", describe_intrastate(state_obj)
+
+            print
+            print "----------------------------"
+            print
 
 if __name__ == '__main__':
 	main()

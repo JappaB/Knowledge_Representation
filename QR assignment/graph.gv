@@ -1,178 +1,177 @@
 digraph {
 	graph [center=true margin=0.2 nodesep=0.1 rankdir=UD ranksep=0.3]
-		122 [label="id122  | M | D 
+		0 [label="id: 0  | M | D 
 Inflow:   | +  | -
 Volume:   | +  | -
 Outflow:  | +  | -
 "]
-		162 [label="id162  | M | D 
+		1 [label="id: 1  | M | D 
 Inflow:   | +  | -
 Volume:   | MAX  | -
 Outflow:  | MAX  | -
 "]
-		6602 [label="id6602  | M | D 
+		2 [label="id: 2  | M | D 
 Inflow:   | +  | -
 Volume:   | +  | 0
 Outflow:  | +  | 0
 "]
-		6642 [label="id6642  | M | D 
+		3 [label="id: 3  | M | D 
 Inflow:   | +  | -
 Volume:   | MAX  | 0
 Outflow:  | MAX  | 0
 "]
-		13042 [label="id13042  | M | D 
+		4 [label="id: 4  | M | D 
 Inflow:   | +  | -
 Volume:   | 0  | +
 Outflow:  | 0  | +
 "]
-		13082 [label="id13082  | M | D 
+		5 [label="id: 5  | M | D 
 Inflow:   | +  | -
 Volume:   | +  | +
 Outflow:  | +  | +
 "]
-		13163 [label="id13163  | M | D 
+		6 [label="id: 6  | M | D 
 Inflow:   | 0  | 0
 Volume:   | +  | -
 Outflow:  | +  | -
 "]
-		13203 [label="id13203  | M | D 
+		7 [label="id: 7  | M | D 
 Inflow:   | 0  | 0
 Volume:   | MAX  | -
 Outflow:  | MAX  | -
 "]
-		13244 [label="id13244  | M | D 
+		8 [label="id: 8  | M | D 
 Inflow:   | +  | 0
 Volume:   | +  | -
 Outflow:  | +  | -
 "]
-		13284 [label="id13284  | M | D 
+		9 [label="id: 9  | M | D 
 Inflow:   | +  | 0
 Volume:   | MAX  | -
 Outflow:  | MAX  | -
 "]
-		19603 [label="id19603  | M | D 
+		10 [label="id: 10  | M | D 
 Inflow:   | 0  | 0
 Volume:   | 0  | 0
 Outflow:  | 0  | 0
 "]
-		19724 [label="id19724  | M | D 
+		11 [label="id: 11  | M | D 
 Inflow:   | +  | 0
 Volume:   | +  | 0
 Outflow:  | +  | 0
 "]
-		19764 [label="id19764  | M | D 
+		12 [label="id: 12  | M | D 
 Inflow:   | +  | 0
 Volume:   | MAX  | 0
 Outflow:  | MAX  | 0
 "]
-		26164 [label="id26164  | M | D 
+		13 [label="id: 13  | M | D 
 Inflow:   | +  | 0
 Volume:   | 0  | +
 Outflow:  | 0  | +
 "]
-		26204 [label="id26204  | M | D 
+		14 [label="id: 14  | M | D 
 Inflow:   | +  | 0
 Volume:   | +  | +
 Outflow:  | +  | +
 "]
-		26285 [label="id26285  | M | D 
+		15 [label="id: 15  | M | D 
 Inflow:   | 0  | +
 Volume:   | +  | -
 Outflow:  | +  | -
 "]
-		26325 [label="id26325  | M | D 
+		16 [label="id: 16  | M | D 
 Inflow:   | 0  | +
 Volume:   | MAX  | -
 Outflow:  | MAX  | -
 "]
-		26366 [label="id26366  | M | D 
+		17 [label="id: 17  | M | D 
 Inflow:   | +  | +
 Volume:   | +  | -
 Outflow:  | +  | -
 "]
-		26406 [label="id26406  | M | D 
+		18 [label="id: 18  | M | D 
 Inflow:   | +  | +
 Volume:   | MAX  | -
 Outflow:  | MAX  | -
 "]
-		32725 [label="id32725  | M | D 
+		19 [label="id: 19  | M | D 
 Inflow:   | 0  | +
 Volume:   | 0  | 0
 Outflow:  | 0  | 0
 "]
-		32846 [label="id32846  | M | D 
+		20 [label="id: 20  | M | D 
 Inflow:   | +  | +
 Volume:   | +  | 0
 Outflow:  | +  | 0
 "]
-		32886 [label="id32886  | M | D 
+		21 [label="id: 21  | M | D 
 Inflow:   | +  | +
 Volume:   | MAX  | 0
 Outflow:  | MAX  | 0
 "]
-		39286 [label="id39286  | M | D 
+		22 [label="id: 22  | M | D 
 Inflow:   | +  | +
 Volume:   | 0  | +
 Outflow:  | 0  | +
 "]
-		39326 [label="id39326  | M | D 
+		23 [label="id: 23  | M | D 
 Inflow:   | +  | +
 Volume:   | +  | +
 Outflow:  | +  | +
 "]
-			162 -> 122
-			122 -> 6602
-			6602 -> 122
-			122 -> 13163
-			122 -> 13244
-			13244 -> 122
-			122 -> 19724
-			6642 -> 162
-			13082 -> 6602
-			6602 -> 13244
-			13244 -> 6602
-			19724 -> 6602
-			26204 -> 6602
-			13082 -> 6642
-			6642 -> 13203
-			6642 -> 13284
-			6642 -> 19764
-			19764 -> 6642
-			13042 -> 13082
-			13082 -> 19724
-			13082 -> 26204
-			26204 -> 13082
-			13203 -> 13163
-			13163 -> 19603
-			13163 -> 26285
-			13284 -> 13244
-			13244 -> 19724
-			13244 -> 26366
-			26366 -> 13244
-			13244 -> 32846
-			32886 -> 13284
-			19603 -> 32725
-			26204 -> 19724
-			26366 -> 19724
-			19724 -> 32846
-			39326 -> 19724
-			26204 -> 19764
-			19764 -> 32886
-			32886 -> 19764
-			26164 -> 26204
-			26204 -> 32846
-			32846 -> 26204
-			26204 -> 39326
-			39326 -> 26204
-			26285 -> 26366
-			26285 -> 32846
-			26325 -> 26366
-			26406 -> 26366
-			26366 -> 32846
-			32886 -> 26406
-			32725 -> 39286
-			32846 -> 39326
-			39326 -> 32846
-			39326 -> 32886
-			39286 -> 39326
+			1 -> 0
+			0 -> 2
+			2 -> 0
+			0 -> 6
+			0 -> 8
+			8 -> 0
+			0 -> 11
+			3 -> 1
+			5 -> 2
+			2 -> 8
+			8 -> 2
+			11 -> 2
+			14 -> 2
+			5 -> 3
+			3 -> 9
+			3 -> 12
+			12 -> 3
+			4 -> 5
+			5 -> 11
+			5 -> 14
+			14 -> 5
+			7 -> 6
+			6 -> 10
+			6 -> 15
+			9 -> 8
+			8 -> 11
+			8 -> 17
+			17 -> 8
+			8 -> 20
+			21 -> 9
+			10 -> 19
+			14 -> 11
+			17 -> 11
+			11 -> 20
+			23 -> 11
+			14 -> 12
+			12 -> 21
+			21 -> 12
+			13 -> 14
+			14 -> 20
+			20 -> 14
+			14 -> 23
+			23 -> 14
+			15 -> 17
+			15 -> 20
+			16 -> 17
+			18 -> 17
+			17 -> 20
+			21 -> 18
+			19 -> 22
+			20 -> 23
+			23 -> 20
+			23 -> 21
+			22 -> 23
 }
