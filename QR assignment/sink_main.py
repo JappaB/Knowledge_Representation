@@ -52,6 +52,8 @@ def interstate_tap_change(state1,state2):
 
     if state1_values["inflow"].derivative == NEG and state2_values["inflow"].derivative == ZER:
         return "The tap stopped being closed any further"
+    else:
+        return "There is no change in how much water comes out of the tap"
 
 def interstate_magnitude_change_volume_and_outflow(state1,state2):
 
@@ -59,16 +61,18 @@ def interstate_magnitude_change_volume_and_outflow(state1,state2):
     state2_values = state2.get_state()
 
     if state1_values["volume"].magnitude == POS and state2_values["volume"].magnitude == ZER:
-        "The sink ran empty"
+        return "the sink ran empty"
 
     if state1_values["volume"].magnitude == ZER and state2_values["volume"].magnitude == POS:
-        "The sink starts to fill up"
+        return "the sink starts to fill up"
 
     if state1_values["volume"].magnitude == MAX and state2_values["volume"].magnitude == POS:
-        "The sink started to lose some water from it's maximum"
+        return "the sink started to lose some water from it's maximum"
 
     if state1_values["volume"].magnitude == POS and state2_values["volume"].magnitude == MAX:
-        "The sink filled up to it's maximum"
+        return "the sink filled up to it's maximum"
+    else:
+        return "the volume and the outflow did not change"
 
 
 def quantity_addition(q1, q2):
@@ -551,7 +555,7 @@ def create_state_graph(components, relations):
     )
 
 
-    u.view(tempfile.mktemp(".gv"))
+    # u.view(tempfile.mktemp(".gv"))
 
 def main():
 
@@ -604,6 +608,7 @@ def main():
                 to_state_obj = valid_states[int(to_state)]
                 print "In the first state", describe_intrastate(from_state_obj)
                 print interstate_tap_change(from_state_obj, to_state_obj)
+                print "Furthermore, ", interstate_magnitude_change_volume_and_outflow(from_state_obj, to_state_obj)
                 print "In the following state", describe_intrastate(to_state_obj)
 
             if choice == 'intra':
