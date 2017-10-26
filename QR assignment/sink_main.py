@@ -34,6 +34,42 @@ proportionality_model = {
 # q2: sign of quantity 2
 # returns: sign of affected quantity
 
+
+def interstate_tap_change(state1,state2):
+
+    state1_values = state1.get_state()
+    state2_values = state2.get_state()
+
+    if state1_values["inflow"].derivative == POS and state2_values["inflow"].derivative == ZER:
+        return "The tap stopped being opened any further"
+
+    if state1_values["inflow"].derivative == ZER and state2_values["inflow"].derivative == POS:
+        return "The tap started to be opened"
+
+    if state1_values["inflow"].derivative == ZER and state2_values["inflow"].derivative == NEG:
+        return "The tap started to be closed"
+
+    if state1_values["inflow"].derivative == NEG and state2_values["inflow"].derivative == ZER:
+        return "The tap stopped being closed any further"
+
+def interstate_magnitude_change_volume_and_outflow(state1,state2):
+
+    state1_values = state1.get_state()
+    state2_values = state2.get_state()
+
+    if state1_values["volume"].magnitude == POS and state2_values["volume"].magnitude == ZER:
+        "The sink ran empty"
+
+    if state1_values["volume"].magnitude == ZER and state2_values["volume"].magnitude == POS:
+        "The sink starts to fill up"
+
+    if state1_values["volume"].magnitude == MAX and state2_values["volume"].magnitude == POS:
+        "The sink started to lose some water from it's maximum"
+
+    if state1_values["volume"].magnitude == POS and state2_values["volume"].magnitude == MAX:
+        "The sink filled up to it's maximum"
+
+
 def quantity_addition(q1, q2):
     if q1 == q2:
         return q1
