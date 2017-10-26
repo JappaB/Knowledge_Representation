@@ -182,12 +182,11 @@ def valid_transition(state1, state2):
         # if state1.id == debug[0] and state2.id == debug[1]:
         #     print from_posneg_to_zerzer
         if abs(derivative_change) == 1 and abs(magnitude_change) != 0:
-            if from_posneg_to_zerzer and not changed_der_inflow:
-                a = "b"
-            else:
+            if not from_posneg_to_zerzer or changed_der_inflow:
                 derivative_before_mag = False
                 if state1.id == debug[0] and state2.id == debug[1]: print "Oeps5"
                 break
+
 
 
         #Positive derivative can't lead to negative mag change, and vice versa
