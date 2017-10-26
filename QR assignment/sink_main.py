@@ -424,6 +424,7 @@ def state_difference(state1, state2):
     return diff
 
 def describe_intrastate(state):
+
     translation_derivative = {
         "sink" : {
             POS : "increasing",
@@ -442,6 +443,10 @@ def describe_intrastate(state):
             MAX : "full",
             POS : "filled but not full",
             ZER : "empty"
+        },
+        "tap" : {
+            POS: "opened",
+            ZER: "closed"
         }
     }
 
@@ -451,13 +456,13 @@ def describe_intrastate(state):
         NEG : "there is more water going out of the drain than is coming trough the tap"
     }
 
-    intra_tap = "The tap is " + translation_derivative["tap"][state.inflow.derivative]
+    intra_tap = "The tap is " + translation_magnitude["tap"][state.inflow.magnitude] + \
+                ", and " + translation_derivative["tap"][state.inflow.derivative]
     level_sink = "The sink is " + translation_magnitude["sink"][state.volume.magnitude]
     intra_sink = "This level is " + translation_derivative["sink"][state.volume.derivative] + \
            " because " + translation_explanation[state.volume.derivative]
 
     return intra_tap + ". " + level_sink + ". " + intra_sink
-
 
 def create_state_graph(components, relations):
     u = Digraph()
