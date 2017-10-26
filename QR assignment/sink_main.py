@@ -128,17 +128,18 @@ def valid_transition(state1, state2):
     state1_values = state1.get_state()
     state2_values = state2.get_state()
 
-    debug = (338, 235)
+    debug = (167, 235)
 
     # if instable state => go to stable state
     correct_follow_up = True
+    changed_der_inflow = state1_values["inflow"].derivative != state2_values["inflow"].derivative
 
     for quantity in state1.instable_quantities():
         if state2.get_state()[quantity].magnitude != POS:
             correct_follow_up = False
             if state1.id == debug[0] and state2.id == debug[1]: print "Oeps1"
             break
-        if state1_values["inflow"].derivative != state2_values["inflow"].derivative:
+        if changed_der_inflow:
             correct_follow_up = False
             if state1.id == debug[0] and state2.id == debug[1]: print "Oeps2"
             break
@@ -148,13 +149,18 @@ def valid_transition(state1, state2):
     continuous = True
     derivative_before_mag = True
     signs_mag_der = True
+    # Derivative has to change before magnitude
+    derivative_before_mag = True
+
     # Check if it really is in line with the rule
     for label, quantity in state1_values.iteritems():
 
         # Continuity (derivatives can't change sign without passing STD)
         # Also holds for quantities (can't go from ZER to MAX)
         # Check if derivative changes with more than a single step
-        derivative_change = index_distance(quantity.der_q_space, quantity.derivative, state2_values[label].derivative)
+        derivative_change = index_distance(quantity.der_q_space,
+                                           quantity.derivative,
+                                           state2_values[label].derivative)
 
         if abs(derivative_change) > 1:
             continuous = False
@@ -162,29 +168,29 @@ def valid_transition(state1, state2):
             break
 
         # Check if magnitude changes with more than a single step
-        magnitude_change = index_distance(quantity.mag_q_space, quantity.magnitude, state2_values[label].magnitude)
+        magnitude_change = index_distance(quantity.mag_q_space,
+                                          quantity.magnitude,
+                                          state2_values[label].magnitude)
         if abs(magnitude_change) > 1:
             continuous = False
             if state1.id == debug[0] and state2.id == debug[1]: print "Oeps4"
             break
 
-
-        # Derivative has to change before magnitude
-        derivative_before_mag = True
-
         # TODO: We would want to allow + - to go to 0 0
-        # from_posneg_to_zerzer = state1_values[label].symbol_pair() == POS+NEG and state2_values[label] == ZER+ZER
+        from_posneg_to_zerzer = state1_values[label].symbol_pair() == POS+NEG \
+                                and state2_values[label].symbol_pair() == ZER+ZER
         # if state1.id == debug[0] and state2.id == debug[1]:
         #     print from_posneg_to_zerzer
         if abs(derivative_change) == 1 and abs(magnitude_change) != 0:
-            derivative_before_mag = False
-
-            if state1.id == debug[0] and state2.id == debug[1]: print "Oeps5"
-            break
+            if from_posneg_to_zerzer and not changed_der_inflow:
+                a = "b"
+            else:
+                derivative_before_mag = False
+                if state1.id == debug[0] and state2.id == debug[1]: print "Oeps5"
+                break
 
 
         #Positive derivative can't lead to negative mag change, and vice versa
-
         if quantity.derivative == ZER and state2_values[label].magnitude != state1_values[label].magnitude:
             signs_mag_der = False
             if state1.id == debug[0] and state2.id == debug[1]: print "Oeps6"
