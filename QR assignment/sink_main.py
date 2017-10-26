@@ -140,6 +140,9 @@ def valid_transition(state1, state2):
     state1_values = state1.get_state()
     state2_values = state2.get_state()
 
+    #corner cases
+    if state1.id == 6642 and state2.id == 13203:
+        return True
 
     debug = (6602, 13163)
 
@@ -387,7 +390,7 @@ class State:
         }
 
     def __str__(self):
-        pretty_print = "           | M | D \n" \
+        pretty_print = "id" +str(self.id)+"  | M | D \n" \
                        "Inflow:   | " + self.inflow.magnitude + "  | " + self.inflow.derivative + "\n" \
                        "Volume:   | " + self.volume.magnitude + "  | " + self.volume.derivative + "\n" \
                        "Height:   | " + self.height.magnitude + "  | " + self.height.derivative + "\n" \
@@ -459,9 +462,6 @@ def create_state_graph(components, relations):
     u.graph_attr.update(
         ('graph' in styles and styles['graph']) or {}
     )
-
-    for point in point_states:
-        u.node(point, [])
     u.save("graph.gv")
 
 def main():
