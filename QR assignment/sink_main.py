@@ -54,18 +54,26 @@ def generate_all_states():
     derivative_values = [NEG, ZER, POS]
     states = []
 
+    #ForloopArt
+    # Generate all possible combinations of quantity/derivative values
     for derivative_in in derivative_values:
         for derivative_out in  derivative_values:
             for derivative_vol in derivative_values:
-                for magnitude_in in [ZER, POS]:
-                    for magnitude_out in [ZER, POS, MAX]:
-                        for magnitude_vol in [ZER, POS, MAX]:
-                            volume = Volume(magnitude_vol, derivative_vol)
-                            inflow = Inflow(magnitude_in, derivative_in)
-                            outflow = Outflow(magnitude_out, derivative_out)
-                            state = State(inflow, outflow, volume)
-                            state.set_id(len(states) + 1)
-                            states.append(state)
+                for derivative_height in derivative_values:
+                    for derivative_pressure in derivative_values:
+                        for magnitude_in in [ZER, POS]:
+                            for magnitude_out in [ZER, POS, MAX]:
+                                for magnitude_vol in [ZER, POS, MAX]:
+                                    for magnitude_height in [ZER, POS, MAX]:
+                                        for magnitude_pressure in [ZER, POS, MAX]:
+                                            volume = Volume(magnitude_vol, derivative_vol)
+                                            height = Height(magnitude_height, derivative_height)
+                                            pressure = Pressure(magnitude_pressure, derivative_pressure)
+                                            inflow = Inflow(magnitude_in, derivative_in)
+                                            outflow = Outflow(magnitude_out, derivative_out)
+                                            state = State(inflow, outflow, volume, height, pressure)
+                                            state.set_id(len(states) + 1)
+                                            states.append(state)
 
     return states
 
@@ -132,11 +140,12 @@ def valid_transition(state1, state2):
     state1_values = state1.get_state()
     state2_values = state2.get_state()
 
-    debug = (167, 235)
+    debug = (6602, 13163)
 
     # if instable state => go to stable state
     correct_follow_up = True
     changed_der_inflow = state1_values["inflow"].derivative != state2_values["inflow"].derivative
+    changed_der_volume = state1_values["volume"].derivative != state2_values["volume"].derivative
 
     for quantity in state1.instable_quantities():
         if state2.get_state()[quantity].magnitude != POS:
@@ -186,12 +195,10 @@ def valid_transition(state1, state2):
         # if state1.id == debug[0] and state2.id == debug[1]:
         #     print from_posneg_to_zerzer
         if abs(derivative_change) == 1 and abs(magnitude_change) != 0:
-            if not from_posneg_to_zerzer or changed_der_inflow:
+            if not from_posneg_to_zerzer or (changed_der_inflow and changed_der_volume):
                 derivative_before_mag = False
                 if state1.id == debug[0] and state2.id == debug[1]: print "Oeps5"
                 break
-
-
 
         #Positive derivative can't lead to negative mag change, and vice versa
         if quantity.derivative == ZER and state2_values[label].magnitude != state1_values[label].magnitude:
@@ -357,17 +364,18 @@ class State:
         }
 
     def __str__(self):
-        pretty_print = "id:" + str(self.id) + "| M | D \n" \
+        pretty_print = "           | M | D \n" \
                        "Inflow:   | " + self.inflow.magnitude + "  | " + self.inflow.derivative + "\n" \
                        "Volume:   | " + self.volume.magnitude + "  | " + self.volume.derivative + "\n" \
                        "Height:   | " + self.height.magnitude + "  | " + self.height.derivative + "\n" \
                        "Pressure: | " + self.pressure.magnitude + " | " + self.pressure.derivative + "\n"\
-                       "Outflow:  | " + self.outflow.magnitude + "  | " + self.outflow.derivative + "\n" \
-                       "Instablilites: |" + str(self.instable_quantities())
+                       "Outflow:  | " + self.outflow.magnitude + "  | " + self.outflow.derivative + "\n"
         return pretty_print
 
-    def __init__(self, inf, outf, vol):
+    def __init__(self, inf, outf, vol, hght, press):
         self.volume = vol
+        self.height = hght
+        self.pressure = press
         self.outflow = outf
         self.inflow = inf
 
@@ -383,14 +391,54 @@ class State:
 def create_state_graph(components, relations):
     u = Digraph()
 
+    point_states = []
+
     for state in components:
+        if state.instable_quantities():
+            point_states.append(str(state.id))
         u.node(str(state.id), str(state))
 
     for transition in relations:
         u.edge(str(transition[0].id), str(transition[1].id))
 
-    u.subgraph([1])
+    styles = {
+        'graph': {
+            'rankdir':'UD',
+            'center':'true',
+            'margin':'0.2',
+            'nodesep':'0.1',
+            'ranksep':'0.3',
+        },
+        'stablenode': {
+            'fontname': 'Courier',
+            'fontsize': '12',
+            'shape': 'box',
+            'width': '.3',
+        },
+        'unstablenode': {
+            'fontname': 'Courier',
+            'fontsize': '10',
+            'shape': 'box',
+            'color': 'lightgrey',
+            'width': '.3',
+        },
+        'activeedge': {
+            'fontname': 'Courier',
+            'fontsize': '10',
+        },
+        'passiveedge': {
+            'fontname': 'Courier',
+            'fontsize': '10',
+            'color': 'lightgrey',
+        }
+    }
 
+    u.graph_attr.update(
+        ('graph' in styles and styles['graph']) or {}
+    )
+
+    for point in point_states:
+        u.node(point, [])
     u.save("graph.gv")
 
 def main():
@@ -409,6 +457,7 @@ def main():
             valid_transitions.append( (state1, state2) )
         if valid_transition(state2, state1):
             valid_transitions.append( (state2, state1) )
+
     create_state_graph(valid_states, valid_transitions)
 
 if __name__ == '__main__':
