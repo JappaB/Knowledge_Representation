@@ -56,7 +56,7 @@ def interstate_tap_change(state1,state2):
         return "There is no change in how much water comes out of the tap"
 
 def interstate_magnitude_change_volume_and_outflow(state1,state2):
-
+# TODO: Nog inflow in de text verwerken?
     state1_values = state1.get_state()
     state2_values = state2.get_state()
 
@@ -192,6 +192,22 @@ def valid_transition(state1, state2):
     changed_der_inflow = state1_values["inflow"].derivative != state2_values["inflow"].derivative
     changed_der_volume = state1_values["volume"].derivative != state2_values["volume"].derivative
 
+    # patch 14->11 2->8 (instable states)
+    volume_derivative_change = index_distance(state1_values['volume'].der_q_space,
+                                              state1_values['volume'].derivative,
+                                              state2_values['volume'].derivative)
+
+    if volume_derivative_change < 0 and state1_values['inflow'].magnitude == POS:
+        return False
+
+    # patch Daan rule extension:
+    if volume_derivative_change > 0 and state1_values['inflow'].magnitude == POS \
+            and state1_values['inflow'].derivative != state2_values['inflow'].derivative:
+        return False
+
+
+
+
     for quantity in state1.instable_quantities():
         if state2.get_state()[quantity].magnitude != POS:
             correct_follow_up = False
@@ -220,6 +236,9 @@ def valid_transition(state1, state2):
         if state1.id == debug[0] and state2.id == debug[1]:
             print "Oeps madderfakking 11"
         return False
+
+
+
 
     # Next state should be a continuous child of previous state
     continuous = True
@@ -418,6 +437,11 @@ class State:
         for label, quantiy in self.get_state().iteritems():
             if quantiy.symbol_pair() in [MAX+NEG, ZER+POS]:
                 quants.append(label)
+
+        # Patch  23->20, 14->20
+        state_information = self.get_state()
+        if state_information['volume'].derivative == ZER and state_information['inflow'].magnitude == POS:
+            quants.append('volume')
 
         return quants
 
