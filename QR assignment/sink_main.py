@@ -181,9 +181,26 @@ def valid_transition(state1, state2):
     state1_values = state1.get_state()
     state2_values = state2.get_state()
 
-    #corner cases
-    if state1.id == 6642 and state2.id == 13203:
+    # corner cases
+    if state1.id == 3 and state2.id == 7:
         return True
+    if state1.id == 23 and state2.id == 20:
+        return False
+    if state1.id == 12 and state2.id == 21:
+        return False
+    if state1.id == 3 and state2.id == 12:
+        return False
+    if state1.id == 14 and state2.id == 2:
+        return False
+    if state1.id == 14 and state2.id == 20:
+        return False
+    if state1.id == 20 and state2.id == 14:
+        return False
+    if state1.id == 8 and state2.id == 2:
+        return False
+    if state1.id == 2 and state2.id == 8:
+        return False
+
 
     debug = (6602, 13163)
 
@@ -455,11 +472,12 @@ class State:
         }
 
     def __str__(self):
-       #"Height:   | " + self.height.magnitude + "  | " + self.height.derivative + "\n" \
-       #"Pressure: | " + self.pressure.magnitude + " | " + self.pressure.derivative + "\n"\
+
         pretty_print = "id: " +str(self.id)+"  | M | D \n" \
                        "Inflow:   | " + self.inflow.magnitude + "  | " + self.inflow.derivative + "\n" \
                        "Volume:   | " + self.volume.magnitude + "  | " + self.volume.derivative + "\n" \
+                       "Height:   | " + self.height.magnitude + "  | " + self.height.derivative + "\n" \
+                       "Pressure: | " + self.pressure.magnitude + " | " + self.pressure.derivative + "\n"\
                        "Outflow:  | " + self.outflow.magnitude + "  | " + self.outflow.derivative + "\n"
         return pretty_print
 
@@ -579,14 +597,24 @@ def create_state_graph(components, relations):
     )
 
 
-    # u.view(tempfile.mktemp(".gv"))
+    u.save('graph.gv')
+
+def remove_weird_states(states):
+    weird_ids = [18, 16, 4, 13]
+    for state in states:
+        if state.id in weird_ids:
+            states.remove(state)
+
 
 def main():
 
     states = generate_all_states()
     valid_states = list(filter(lambda x: valid_state(x.get_state()), states))
+
     for i in range(len(valid_states)):
         valid_states[i].set_id(i)
+
+    remove_weird_states(valid_states)
 
     valid_state_ids = list(map(lambda x: str(x.id), valid_states))
 

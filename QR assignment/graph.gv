@@ -3,121 +3,141 @@ digraph {
 		0 [label="id: 0  | M | D 
 Inflow:   | +  | -
 Volume:   | +  | -
+Height:   | +  | -
+Pressure: | + | -
 Outflow:  | +  | -
 "]
 		1 [label="id: 1  | M | D 
 Inflow:   | +  | -
 Volume:   | MAX  | -
+Height:   | MAX  | -
+Pressure: | MAX | -
 Outflow:  | MAX  | -
 "]
 		2 [label="id: 2  | M | D 
 Inflow:   | +  | -
 Volume:   | +  | 0
+Height:   | +  | 0
+Pressure: | + | 0
 Outflow:  | +  | 0
 "]
 		3 [label="id: 3  | M | D 
 Inflow:   | +  | -
 Volume:   | MAX  | 0
+Height:   | MAX  | 0
+Pressure: | MAX | 0
 Outflow:  | MAX  | 0
-"]
-		4 [label="id: 4  | M | D 
-Inflow:   | +  | -
-Volume:   | 0  | +
-Outflow:  | 0  | +
 "]
 		5 [label="id: 5  | M | D 
 Inflow:   | +  | -
 Volume:   | +  | +
+Height:   | +  | +
+Pressure: | + | +
 Outflow:  | +  | +
 "]
 		6 [label="id: 6  | M | D 
 Inflow:   | 0  | 0
 Volume:   | +  | -
+Height:   | +  | -
+Pressure: | + | -
 Outflow:  | +  | -
 "]
 		7 [label="id: 7  | M | D 
 Inflow:   | 0  | 0
 Volume:   | MAX  | -
+Height:   | MAX  | -
+Pressure: | MAX | -
 Outflow:  | MAX  | -
 "]
 		8 [label="id: 8  | M | D 
 Inflow:   | +  | 0
 Volume:   | +  | -
+Height:   | +  | -
+Pressure: | + | -
 Outflow:  | +  | -
 "]
 		9 [label="id: 9  | M | D 
 Inflow:   | +  | 0
 Volume:   | MAX  | -
+Height:   | MAX  | -
+Pressure: | MAX | -
 Outflow:  | MAX  | -
 "]
 		10 [label="id: 10  | M | D 
 Inflow:   | 0  | 0
 Volume:   | 0  | 0
+Height:   | 0  | 0
+Pressure: | 0 | 0
 Outflow:  | 0  | 0
 "]
 		11 [label="id: 11  | M | D 
 Inflow:   | +  | 0
 Volume:   | +  | 0
+Height:   | +  | 0
+Pressure: | + | 0
 Outflow:  | +  | 0
 "]
 		12 [label="id: 12  | M | D 
 Inflow:   | +  | 0
 Volume:   | MAX  | 0
+Height:   | MAX  | 0
+Pressure: | MAX | 0
 Outflow:  | MAX  | 0
-"]
-		13 [label="id: 13  | M | D 
-Inflow:   | +  | 0
-Volume:   | 0  | +
-Outflow:  | 0  | +
 "]
 		14 [label="id: 14  | M | D 
 Inflow:   | +  | 0
 Volume:   | +  | +
+Height:   | +  | +
+Pressure: | + | +
 Outflow:  | +  | +
 "]
 		15 [label="id: 15  | M | D 
 Inflow:   | 0  | +
 Volume:   | +  | -
+Height:   | +  | -
+Pressure: | + | -
 Outflow:  | +  | -
-"]
-		16 [label="id: 16  | M | D 
-Inflow:   | 0  | +
-Volume:   | MAX  | -
-Outflow:  | MAX  | -
 "]
 		17 [label="id: 17  | M | D 
 Inflow:   | +  | +
 Volume:   | +  | -
+Height:   | +  | -
+Pressure: | + | -
 Outflow:  | +  | -
-"]
-		18 [label="id: 18  | M | D 
-Inflow:   | +  | +
-Volume:   | MAX  | -
-Outflow:  | MAX  | -
 "]
 		19 [label="id: 19  | M | D 
 Inflow:   | 0  | +
 Volume:   | 0  | 0
+Height:   | 0  | 0
+Pressure: | 0 | 0
 Outflow:  | 0  | 0
 "]
 		20 [label="id: 20  | M | D 
 Inflow:   | +  | +
 Volume:   | +  | 0
+Height:   | +  | 0
+Pressure: | + | 0
 Outflow:  | +  | 0
 "]
 		21 [label="id: 21  | M | D 
 Inflow:   | +  | +
 Volume:   | MAX  | 0
+Height:   | MAX  | 0
+Pressure: | MAX | 0
 Outflow:  | MAX  | 0
 "]
 		22 [label="id: 22  | M | D 
 Inflow:   | +  | +
 Volume:   | 0  | +
+Height:   | 0  | +
+Pressure: | 0 | +
 Outflow:  | 0  | +
 "]
 		23 [label="id: 23  | M | D 
 Inflow:   | +  | +
 Volume:   | +  | +
+Height:   | +  | +
+Pressure: | + | +
 Outflow:  | +  | +
 "]
 			1 -> 0
@@ -134,10 +154,10 @@ Outflow:  | +  | +
 			11 -> 2
 			14 -> 2
 			5 -> 3
+			3 -> 7
 			3 -> 9
 			3 -> 12
 			12 -> 3
-			4 -> 5
 			5 -> 11
 			5 -> 14
 			14 -> 5
@@ -158,20 +178,15 @@ Outflow:  | +  | +
 			14 -> 12
 			12 -> 21
 			21 -> 12
-			13 -> 14
 			14 -> 20
 			20 -> 14
 			14 -> 23
 			23 -> 14
 			15 -> 17
 			15 -> 20
-			16 -> 17
-			18 -> 17
 			17 -> 20
-			21 -> 18
 			19 -> 22
 			20 -> 23
-			23 -> 20
 			23 -> 21
 			22 -> 23
 }
