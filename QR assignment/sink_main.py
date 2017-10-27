@@ -4,7 +4,8 @@ import tempfile
 import sys
 
 sys.path.append("/usr/local/lib/graphviz/")
-
+#TODO: verwijder onderstaande counter #patch
+counter =0
 MAX = "MAX"
 POS = "+"
 NEG = "-"
@@ -182,49 +183,60 @@ def valid_transition(state1, state2):
     state2_values = state2.get_state()
 
     # corner cases
-    if state1.id == 3 and state2.id == 7:
-        return True
-    if state1.id == 23 and state2.id == 20:
-        return False
-    if state1.id == 12 and state2.id == 21:
-        return False
-    if state1.id == 3 and state2.id == 12:
-        return False
-    if state1.id == 14 and state2.id == 2:
-        return False
-    if state1.id == 14 and state2.id == 20:
-        return False
-    if state1.id == 20 and state2.id == 14:
-        return False
-    if state1.id == 8 and state2.id == 2:
-        return False
-    if state1.id == 2 and state2.id == 8:
-        return False
+    # if state1.id == 3 and state2.id == 7:
+    #     return True
+    # if state1.id == 23 and state2.id == 20:
+    #     return False
+    # if state1.id == 12 and state2.id == 21:
+    #     return False
+    # if state1.id == 3 and state2.id == 12:
+    #     return False
+    # if state1.id == 14 and state2.id == 2:
+    #     return False
+    # if state1.id == 14 and state2.id == 20:
+    #     return False
+    # if state1.id == 20 and state2.id == 14:
+    #     return False
+    # if state1.id == 8 and state2.id == 2:
+    #     return False
+    # if state1.id == 2 and state2.id == 8:
+    #     return False
 
 
-    debug = (6602, 13163)
+    debug = (2,0)
 
     # if instable state => go to stable state
     correct_follow_up = True
     changed_der_inflow = state1_values["inflow"].derivative != state2_values["inflow"].derivative
     changed_der_volume = state1_values["volume"].derivative != state2_values["volume"].derivative
 
-    # patch 14->11 2->8 (instable states)
+    # Also instable Patch  23->20, 14->20 (probably not needed anymore)
+    #state_information = self.get_state()
+    # if state1_values['volume'].derivative == ZER and state1_values['inflow'].magnitude == POS\
+    #         and state2_values['volume'].derivative:
+    #     return False
+
+
+    # # patch 14->11 2->8 (instable states)
     volume_derivative_change = index_distance(state1_values['volume'].der_q_space,
                                               state1_values['volume'].derivative,
                                               state2_values['volume'].derivative)
 
-    if volume_derivative_change < 0 and state1_values['inflow'].magnitude == POS:
+    # patch ctd. : If not in an equilibrium (2->0) or at maximum volume (..->..),
+    #  a positive magnitude of the inflow should result in a positive derivative of the volume
+    if volume_derivative_change < 0 and state1_values['inflow'].magnitude == POS \
+            and state2_values['volume'].magnitude != MAX and state1_values['volume'].derivative != ZER:
+        if state1.id == debug[0] and state2.id == debug[1]: print "oeps12"
         return False
-
-    # patch Daan rule extension:
+    #
+    # patch Daan rule extension (14->20, 8->2):
     if volume_derivative_change > 0 and state1_values['inflow'].magnitude == POS \
             and state1_values['inflow'].derivative != state2_values['inflow'].derivative:
         return False
 
 
 
-
+    # If instable point state, the next state should be the stable correct follw up state
     for quantity in state1.instable_quantities():
         if state2.get_state()[quantity].magnitude != POS:
             correct_follow_up = False
@@ -237,22 +249,23 @@ def valid_transition(state1, state2):
 
 
 
+    # Might be not necessary anymore
 
-    # if inflow and outflow are at an equilibrium, but the derivative of the inflow is not zero,
-    # The derivative of the magnitude should be the derivative of the inflow in the next state.
-    if state1_values["inflow"].derivative != ZER and state1_values["volume"].derivative == ZER \
-            and state2_values["volume"].derivative != state1_values["inflow"].derivative and\
-            (state1_values["volume"].symbol_pair()!= MAX+ZER):
-            if state1.id == debug[0] and state2.id == debug[1]:
-                print "Oeps madderfakking 10"
-            return False
-
-    # getting 252->342 out
-    if state1_values["inflow"].derivative == ZER and state1_values["volume"].derivative == ZER \
-            and state2_values["volume"].derivative != state1_values["inflow"].derivative:
-        if state1.id == debug[0] and state2.id == debug[1]:
-            print "Oeps madderfakking 11"
-        return False
+    # # if inflow and outflow are at an equilibrium, but the derivative of the inflow is not zero,
+    # # The derivative of the magnitude should be the derivative of the inflow in the next state.
+    # if state1_values["inflow"].derivative != ZER and state1_values["volume"].derivative == ZER \
+    #         and state2_values["volume"].derivative != state1_values["inflow"].derivative and\
+    #         (state1_values["volume"].symbol_pair()!= MAX+ZER):
+    #         if state1.id == debug[0] and state2.id == debug[1]:
+    #             print "Oeps madderfakking 10"
+    #         return False
+    #
+    # # getting 252->342 out
+    # if state1_values["inflow"].derivative == ZER and state1_values["volume"].derivative == ZER \
+    #         and state2_values["volume"].derivative != state1_values["inflow"].derivative:
+    #     if state1.id == debug[0] and state2.id == debug[1]:
+    #         print "Oeps madderfakking 11"
+    #     return False
 
 
 
@@ -293,16 +306,36 @@ def valid_transition(state1, state2):
                                 and state2_values[label].symbol_pair() == ZER+ZER
         from_pospos_to_maxzer = state1_values[label].symbol_pair() == POS+POS \
                                 and state2_values[label].symbol_pair() == MAX+ZER
+        #Patch
+        # from_maxzer_to_maxneg= state1_values[label].symbol_pair() == MAX+ZER \
+        #                         and state2_values[label].symbol_pair() == MAX+NEG
+        # from_poszer_to_pospos= state1_values[label].symbol_pair() == POS+ZER \
+        #                         and state2_values[label].symbol_pair() == POS+POS
 
-        if state1.id == debug[0] and state2.id == debug[1]:
-            print not(from_posneg_to_zerzer), not(from_pospos_to_maxzer)
+
         # if state1.id == debug[0] and state2.id == debug[1]:
         #     print from_posneg_to_zerzer
-        if abs(derivative_change) == 1 and abs(magnitude_change) != 0:
+        #TODO: global counter weghalen
+        # global counter
 
-            if not (from_posneg_to_zerzer or from_pospos_to_maxzer) or (changed_der_inflow and changed_der_volume):
+
+        # magnitude cannot change if derivative = ZER
+        if abs(magnitude_change) == 1 and  state1_values[label].derivative == ZER:
+
+            #TODO: Onderstaande if kan hierdoor weg, je kunt dit checken met de counter
+            # if not (from_posneg_to_zerzer or from_pospos_to_maxzer) or (changed_der_inflow and changed_der_volume):
+                # counter += 1
+                # print counter
                 derivative_before_mag = False
-                if state1.id == debug[0] and state2.id == debug[1]: print "Oeps5"
+                if state1.id == debug[0] and state2.id == debug[1]:
+                    print "Oeps5"
+                    print from_posneg_to_zerzer
+                    print from_pospos_to_maxzer
+                    print from_posneg_to_zerzer or from_pospos_to_maxzer
+                    print not (from_posneg_to_zerzer or from_pospos_to_maxzer)
+                    print changed_der_inflow and changed_der_volume
+                    print not (from_posneg_to_zerzer or from_pospos_to_maxzer) or (changed_der_inflow and changed_der_volume)
+
                 break
 
         #Positive derivative can't lead to negative mag change, and vice versa
@@ -454,11 +487,6 @@ class State:
         for label, quantiy in self.get_state().iteritems():
             if quantiy.symbol_pair() in [MAX+NEG, ZER+POS]:
                 quants.append(label)
-
-        # Patch  23->20, 14->20
-        state_information = self.get_state()
-        if state_information['volume'].derivative == ZER and state_information['inflow'].magnitude == POS:
-            quants.append('volume')
 
         return quants
 
